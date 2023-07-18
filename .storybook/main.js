@@ -1,5 +1,6 @@
 /** @type { import('@storybook/sveltekit').StorybookConfig } */
 const config = {
+	logLevel: 'debug',
 	stories: ['../src/**/*.mdx', '../src/**/*.stories.@(js|jsx|ts|tsx)'],
 	core: {
 		disableTelemetry: true,

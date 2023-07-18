@@ -1,8 +1,8 @@
 import {ethers} from "ethers";
-import TrialTable from './TrialTable.svelte';
+import TrialsTable from './TrialsTable.svelte';
 
 export default {
-  component: TrialTable,
+  component: TrialsTable,
   title: 'trials/TrialTable',
   excludeStories: /.*Data$/,
   //👇 The argTypes are included so that they are properly displayed in the Actions Panel
@@ -11,7 +11,7 @@ export default {
 };
 
 const Template = ({ ...args }) => ({
-  Component: TrialTable,
+  Component: TrialsTable,
   props: args,
   // on: {
   //   ...actionsData,
@@ -24,7 +24,7 @@ Default.args = {
   trials: [
     { // chaintrap-arenastate/trialsetup.js:TrialSetup defines this format
       gid: ethers.BigNumber.from(1),
-      metadataUrl: 'ipfs://xxx/yyy',
+      tokenUri: 'ipfs://xxx/yyy',
       codex: {},
       metadata: {
         // chaintrap-arenastate/erc1155metadata/gamecreator.js:configureMetadataOptions defines this format
@@ -35,7 +35,7 @@ Default.args = {
     }, {
       gid: ethers.BigNumber.from(2),
       codex: {},
-      metadataUrl: 'ipfs://12345aaa/yyy',
+      tokenUri: 'ipfs://12345aaa/yyy',
       metadata: {
         // chaintrap-arenastate/erc1155metadata/gamecreator.js:configureMetadataOptions defines this format
         name: "game two",

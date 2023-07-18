@@ -44,7 +44,7 @@
 						<TableBodyCell>
 							<Button id="b1" outline={true} disabled>{identityAbbrev(trial.gid)}</Button>
 							<Popover class="w-96 text-sm font-light " triggeredBy="#b1">
-								{trial.id}
+								{trial.gid.toHexString()}
 							</Popover>
 						</TableBodyCell>
 					{/if}
