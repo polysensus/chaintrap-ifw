@@ -38,7 +38,7 @@
 			{#each trials as trial, i (trial.gid)}
 				<TableBodyRow>
 					<TableBodyCell>
-						<Button on:click={() => (selectTrial(trial))}></Button>
+						<Button on:click={() => (selectTrial(trial))}>{trial.metadata.name}</Button>
 					</TableBodyCell>
 					{#if showId}
 						<TableBodyCell>
@@ -48,7 +48,7 @@
 							</Popover>
 						</TableBodyCell>
 					{/if}
-					<TableBodyCell>{trial.description}</TableBodyCell>
+					<TableBodyCell>{trial.metadata.description}</TableBodyCell>
 				</TableBodyRow>
 			{/each}
 		</TableBody>
