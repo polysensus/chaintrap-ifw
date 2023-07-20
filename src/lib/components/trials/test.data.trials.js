@@ -3,6 +3,7 @@ export const trials2Basic = [
     { // chaintrap-arenastate/trialsetup.js:TrialSetup defines this format
       gid: ethers.BigNumber.from(1),
       tokenUri: 'ipfs://xxx/yyy',
+      gatewayImageUrl: "/static/nft-defaults/game-ico-2.png",
       codex: {},
       metadata: {
         // chaintrap-arenastate/erc1155metadata/gamecreator.js:configureMetadataOptions defines this format
@@ -14,6 +15,8 @@ export const trials2Basic = [
       gid: ethers.BigNumber.from(2),
       codex: {},
       tokenUri: 'ipfs://12345aaa/yyy',
+      gatewayImageUrl: "/static/nft-defaults/game-ico-1.png",
+      codex: {},
       metadata: {
         // chaintrap-arenastate/erc1155metadata/gamecreator.js:configureMetadataOptions defines this format
         name: "game two",

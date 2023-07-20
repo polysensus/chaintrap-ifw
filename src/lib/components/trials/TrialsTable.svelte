@@ -1,6 +1,4 @@
 <script>
-  import {ethers } from "ethers";
-  import { createEventDispatcher } from 'svelte';
 	import {
 		Table,
 		TableBody,
