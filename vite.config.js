@@ -2,25 +2,12 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vitest/config';
 import { searchForWorkspaceRoot } from 'vite';
 
-import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
-import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill';
-// You don't need to add this to deps, it's included by @esbuild-plugins/node-modules-polyfill
-// import rollupNodePolyFill from 'rollup-plugin-node-polyfills';
-import rollupNodePolyFill from 'rollup-plugin-polyfill-node';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 import path from 'path'
 
 export default defineConfig({
-	build: {
-    rollupOptions: {
-        plugins: [
-            // Enable rollup polyfills plugin
-            // used during production bundling
-            rollupNodePolyFill()
-        ]
-    }
-	},
-	plugins: [sveltekit()],
+	plugins: [sveltekit(), nodePolyfills({protocolImports: true})],
 	test: {
 		include: ['src/**/*.{test,spec}.{js,ts}']
 	},
@@ -35,23 +22,16 @@ export default defineConfig({
 			// can be resolved by adding the appropriate polyfill alias here
 			// process: 'rollup-plugin-node-pollyfills/polyfills/process-es6',
 			// buffer: 'rollup-plugin-node-polyfills/polyfills/buffer-es6' OK but this package is sort of abandoned
-			path: 'rollup-plugin-polyfill-node/dist/polyfills.js',
-			buffer: 'rollup-plugin-polyfill-node/dist/polyfills.js'
+			// path: 'rollup-plugin-polyfill-node/dist/polyfills.js',
+			// buffer: 'rollup-plugin-polyfill-node/dist/polyfills.js'
 		}
 	},
 	optimizeDeps: {
+  	include: ['ethers', '@web3auth/modal'],
 		esbuildOptions: {
 			define: {
 				global: 'globalThis'
-			},
-      // Enable esbuild polyfill plugins
-      plugins: [
-          NodeGlobalsPolyfillPlugin({
-              process: true,
-              buffer: true
-          }),
-          NodeModulesPolyfillPlugin()
-      ]
+			}
 		}
 	},
 	server: {
