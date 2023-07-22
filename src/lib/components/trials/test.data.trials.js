@@ -7,7 +7,10 @@ export const trials2Basic = [
       codex: {},
       metadata: {
         // chaintrap-arenastate/erc1155metadata/gamecreator.js:configureMetadataOptions defines this format
-        name: "game one",
+        properties: {
+          name: "game one",
+        },
+        title: "A game of chaintrap",
         description: "The first game of chaintrap",
         image: "ipfs://zzz/bbb"
       }
@@ -19,7 +22,10 @@ export const trials2Basic = [
       codex: {},
       metadata: {
         // chaintrap-arenastate/erc1155metadata/gamecreator.js:configureMetadataOptions defines this format
-        name: "game two",
+        properties: {
+          name: "game two"
+        },
+        title: "A game of chaintrap",
         description: "The first game of chaintrap",
         image: "ipfs://zzz/bbb"
       }
