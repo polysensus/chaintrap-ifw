@@ -1,14 +1,19 @@
 <Navbar let:hidden let:toggle>
   <NavBrand href="/">
-    <img src="/static/apple-icon-120x120.png" class="mr-3 h-6 sm:h-9" alt="Polysensus Logo"/>
+    <img src="/apple-icon-120x120.png" class="mr-3 h-6 sm:h-9" alt="Polysensus Logo"/>
     <span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white"><a href="https://www.polysensus.com" target="_blank" >Polysensus</a></span>
   </NavBrand>
   <NavHamburger on:click={toggle} />
   <NavUl {hidden} class="ml-3">
     <!--<NavLi href="/contact"><a href="https://www.polysensus.com" target="_blank" >Contact</a></NavLi> -->
-		<ProvidersDropdown {providers} bind:buttonText={providersButtonText}/>
+		<ProvidersDropdown {providers} bind:cfg={cfg}/>
   </NavUl>
 </Navbar>
+
+<div>
+  <p>selected provider {cfg?.name} {cfg?.chainId}</p><br/>
+  <p>{JSON.stringify(cfg ?? {})}</p>
+</div>
 
 <script>
   import { onMount } from 'svelte';
@@ -26,9 +31,9 @@
 	import {providers as testProviders } from "$lib/components/presence/test.data.providers.js"
 
 	const presence = new ChainPresence({networks:all});
-	let providers = testProviders;
+	let providers = [];
+  let cfg;
 
-	let providersButtonText="Connect";
 
 	// $:{
 	// 	if (presence?.providerSwitch?.available)
@@ -37,7 +42,7 @@
 
   onMount(async () => {
     // window.getPixiApp = getPixiApp; /** test support hook */
-		await presence.refreshProviders();
+		providers = Object.values((await presence.refreshProviders()));
 		console.log('mounted')
   });
 

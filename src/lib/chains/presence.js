@@ -32,6 +32,7 @@ export class ChainPresence {
 
     // provider selection
     this.providerSwitch = new Web3AuthModalProviderSwitch({
+      prepared: (name, ctx) => {console.log(`prepapred: ${name}`)},
       accountsChanged: async (name, ctx) => this.accountsChanged(name, ctx),
       chainChanged: async (name, ctx) => this.chainChanged(name, ctx),
       disconnected: async (name, ctx) => this.disconnected(name, ctx),
@@ -92,12 +93,13 @@ export class ChainPresence {
     }
 
     await this.providerSwitch.prepare(this.cfg.networks, (cfg) => {
+        console.log(`preparing: ${cfg.name}`);
         if (cfg.type.startsWith('web3auth')){
           return new Web3AuthModalProviderContext(cfg);
         }
         return new FetchProviderContext(cfg);
       }, {fetch:true, web3authOptions});
+
+    return Object.values(this.providerSwitch.available).map(ctx => ctx.cfg);
   }
-
-
 }

@@ -3,14 +3,14 @@
 {/if}
 <Dropdown>
 <div slot="header">
-{#if (providers.length && selected)}
-  {@const selectedItem = getSelected()}
-  {#if selectedItem.img}
-    <Avatar src={selectedItem.img} alt={selectedItem.imgAlt ?? "network connector icon"} class="flex-shrink-0"/>
+<!-- (typeof selected !== 'undefined' && selected !== "" && selectedChainId !== "") --->
+{#if typeof cfg !== 'undefined'}
+  {#if cfg.img}
+    <Avatar src={cfg.img} alt={cfg.imgAlt ?? "network connector icon"} class="flex-shrink-0"/>
   {/if}
   <div class="flex items-center space-x-4 min-w-0 m-4">
     <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
-      Connected to {selectedItem.name}. Chain Id {selectedItem?.chainId}
+      Connected to {cfg.name}. Chain Id {cfg.chainId}
     </p>
   </div>
 {:else}
@@ -45,30 +45,39 @@
   export let selected = "";
 
   // @type string
-  export let buttonText = getButtonText();
+  export let buttonText;
 
   // @type boolean
   export let showButton = true;
 
-  $: buttonText = getButtonText()
+  export let cfg;
+
+  $: {
+	  updateSelection(selected)
+  }
 
   function handleClick(item) {
-    selected = item.name === selected ? "" : item.name;
-    buttonText = getButtonText();
+    updateSelection((typeof item !== 'undefined' && item?.name === selected) ? "" : item.name)
   }
 
-  function getSelected() {
+  function updateSelection(name) {
+
+	  cfg = undefined;
+	  selected = "";
+    buttonText = "Connect";
+	  if (name === "")
+      return;
+
+
     for (let i=0; i<providers.length; i++)
-      if (providers[i].name === selected && typeof selected !== 'undefined')
-        return providers[i];
-    return undefined;
-  }
-
-  function getButtonText() {
-    const item = getSelected();
-    if (!item)
-      return "Connect";
-    return `${item.name}:${item.chainId}`
+      if (providers[i].name === name) {
+	  	  cfg = providers[i];
+	  	  selected = name;
+        buttonText = `${selected}:${cfg.chainId}`
+        break;
+	  	}
+    if (typeof cfg === 'undefined')
+      throw new Error(`bad selection for ${name}`);
   }
 
 </script>
