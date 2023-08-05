@@ -12,7 +12,7 @@
 
 <div>
   <p>selected provider {cfg?.name} {cfg?.chainId}</p><br/>
-  <p>{JSON.stringify(cfg ?? {})}</p>
+  <CreateMap mapImg="/content/maps/map.svg"></CreateMap>
 </div>
 
 <script>
@@ -20,6 +20,7 @@
 
 	import { Alert, Chevron, Navbar, NavBrand, NavHamburger, NavUl, NavLi } from 'flowbite-svelte'
 	import ProvidersDropdown from '$lib/components/presence/ProvidersDropdown.svelte';
+	import CreateMap from '$lib/components/workflowsteps/CreateMap.svelte';
 
 	import {ChainPresence} from '$lib/chains/presence.js';
 	import {all} from '$lib/chains/supportedproviders.js';
