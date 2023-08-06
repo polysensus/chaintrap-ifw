@@ -17,6 +17,7 @@ export default defineConfig({
 	resolve: {
 		alias: {
       $assets: path.resolve('./static'),
+      $api: path.resolve('/src/routes/api'),
 			// Errors like,
 			//  RollupError: "Buffer" is not exported by "__vite-browser-external"
 			// can be resolved by adding the appropriate polyfill alias here
