@@ -32,8 +32,6 @@
   import { Avatar, Button, Dropdown, DropdownDivider, Chevron } from 'flowbite-svelte';
   import DropdownItemConnector from '$lib/components/atoms/DropdownItemConnector.svelte';
 
-  export let offset="18";
-
   /**
    * @type {{name:string, chainId:string, ticker?:string, img?:string, imgAlt?:string}[]} x
    */

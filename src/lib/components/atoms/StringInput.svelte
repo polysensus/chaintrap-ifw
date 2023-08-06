@@ -12,8 +12,6 @@
   export let placeholder="enter a string";
   /** @type string*/
   export let labelClass="mb-2";
-  /** @type string*/
-  export let required="required";
 
   /** @type string|undefined*/
   export let value=undefined;
