@@ -18,6 +18,7 @@ import PasswordInput from '$lib/components/atoms/PasswordInput.svelte';
 // --- data imports
 // --- component properties
 export let params = {};
+export let onClickGenerate = ({}) => {}
 
 $: {
   params = {...params,
@@ -79,7 +80,6 @@ let password=null; // null is save in clear
     <p class="mb-3 font-normal text-gray-700 dark:text-gray-400 leading-tight">
       Adjust these to influence how the dungeon is generated
     </p>
-    <form>
       <div class="grid gap-6 mb-6 md:grid-cols-2">
         <NumberInput id="arena_size" label="Arena size" bind:value={arena_size}/>
         <NumberInput id="rooms" label="Rooms" bind:value={rooms}/>
@@ -95,9 +95,8 @@ let password=null; // null is save in clear
       </div>
       <div class="grid gap-6 mb-6 md:grid-cols-1">
       <PasswordInput id="chaintrap_map_password" label="Set a password to encrypt your map" bind:value={password} placeholder="Your password"/>
-      <Button type="submit">Generate</Button>
+      <Button on:click={() => onClickGenerate({...params})}>Generate</Button>
       </div>
-    </form>
     </div>
   </Card>
 </div>

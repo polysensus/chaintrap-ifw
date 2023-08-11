@@ -13,6 +13,7 @@ import PreviewMapCard from "$lib/components/workflowsteps/PreviewMapCard.svelte"
 // --- component properties
 export let mapImg = "";
 export let mapParams = {};
+export let onClickGenerate = ({}) => {}
 // --- component state properties
 // --- svelte bound variables
 
@@ -28,7 +29,7 @@ export let mapParams = {};
 </script>
 <div class="flex flex-row">
 <PreviewMapCard {mapImg}/> 
-<GenerateMapCard bind:params={mapParams}></GenerateMapCard>
+<GenerateMapCard bind:params={mapParams} {onClickGenerate}></GenerateMapCard>
 </div>
 <p>
   {JSON.stringify(mapParams, null, '  ')}

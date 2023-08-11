@@ -12,11 +12,22 @@ export function trimStart(path, value) {
   return path.startsWith(value) ? path.slice(value.length) : path
 }
 
-export async function POSTproxy (event, maptoolUrl) {
+/**
+ * 
+ * @param {*} event 
+ * @param {*} maptoolUrl 
+ * @param {{forceIndex:boolean?}} options 
+ * @returns 
+ */
+export async function POSTproxy (event, maptoolUrl, options) {
 
   // host:port/path/to/maptool/commit
   // -> /commit
-  let uin = new URL(event.request.url)
+  let requestUrl = event.request.url;
+  if (options.forceIndex)
+    requestUrl = trimEnd(requestUrl, '/') + '/';
+  let uin = new URL(requestUrl);
+
   let i = uin.pathname.indexOf(MAPTOOL_SEGMENT)
   if (i < 0) {
     // if svelte kit is routing propertly this should not happen
@@ -26,10 +37,11 @@ export async function POSTproxy (event, maptoolUrl) {
   let path = trimStart(uin.pathname.slice(i+MAPTOOL_SEGMENT.length), '/')
   let api = trimEnd(maptoolUrl, '/')
 
-  const data = await event.request.json()
+  const data = await event.request.json();
+  console.log(JSON.stringify(data, null, ' . '));
 
-  const proxyUrl = new URL(MAPTOOL_SEGMENT + '/' + path, api)
-  console.log(`${event.request.url} -> ${proxyUrl}, path=${path}, api=${api}`)
+  const proxyUrl = new URL(MAPTOOL_SEGMENT + '/' + path, api);
+  console.log(`${event.request.url} -> ${proxyUrl}, path=${path}, api=${api}, forceIndex=${options.forceIndex}`);
 
   // const options = deriveOptions(event.request)
   // const request = new Request(url, options)
@@ -42,9 +54,16 @@ export async function POSTproxy (event, maptoolUrl) {
     ]
   })
 
+  let upstream, body, response;
   try {
-    const upstream = await fetch(request)
-    const body = JSON.stringify(await upstream.json())
+    upstream = await fetch(request);
+  } catch (err) {
+    console.log('maptool headers', request.headers);
+    console.log('fetch error:', err);
+    return json(err);
+  }
+  try {
+    const body = JSON.stringify(await upstream.json());
     const response = new Response(body, {
       status: upstream.status,
       statusText: upstream.statusText,
@@ -53,12 +72,12 @@ export async function POSTproxy (event, maptoolUrl) {
         ['date', upstream.headers.get('date')],
         ['vary', upstream.headers.get('vary')]
       ]
-    })
-    console.log('maptool status', response.statusText)
-    return response
+    });
+    console.log('maptool status', response.statusText);
+    return response;
   } catch (err) {
-    console.log('maptool headers', request.headers)
-    console.log('fetch error:', err)
-    return json(err)
+    console.log(upstream);
+    console.log('response error:', err);
+    return json(err);
   }
 }

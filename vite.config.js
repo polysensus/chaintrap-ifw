@@ -1,17 +1,32 @@
 import { sveltekit } from '@sveltejs/kit/vite';
-import { defineConfig } from 'vitest/config';
-import { searchForWorkspaceRoot } from 'vite';
+// import { defineConfig } from 'vitest/config';
+import { defineConfig, searchForWorkspaceRoot } from 'vite';
 
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
+// only needed for npm run dev as it uses esbuild rather than rollup
+import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill'
+import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill';
 
 import path from 'path'
 
 export default defineConfig({
-	plugins: [sveltekit(), nodePolyfills({protocolImports: true})],
+	plugins: [
+    sveltekit(),
+    nodePolyfills({
+      globals: {
+        global: true,
+        Buffer: 'dev' 
+      },
+      protocolImports: true
+    })
+  ],
+  esbuild: {
+    plugins: [NodeGlobalsPolyfillPlugin({buffer:true}), NodeModulesPolyfillPlugin()]
+  },
+
 	test: {
 		include: ['src/**/*.{test,spec}.{js,ts}']
 	},
-
 	// https://medium.com/@ftaioli/using-node-js-builtin-modules-with-vite-6194737c2cd2
 	// for resolve, optimizeDeps, build.rollupOptions
 	resolve: {
@@ -29,11 +44,9 @@ export default defineConfig({
 	},
 	optimizeDeps: {
   	include: ['ethers', '@web3auth/modal'],
-		esbuildOptions: {
-			define: {
-				global: 'globalThis'
-			}
-		}
+    esbuildOptions: {
+      plugins: [NodeGlobalsPolyfillPlugin({buffer:true}), NodeModulesPolyfillPlugin()]
+    }
 	},
 	server: {
 		fs: {
