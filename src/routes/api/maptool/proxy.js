@@ -24,8 +24,6 @@ export async function POSTproxy (event, maptoolUrl, options) {
   // host:port/path/to/maptool/commit
   // -> /commit
   let requestUrl = event.request.url;
-  if (options.forceIndex)
-    requestUrl = trimEnd(requestUrl, '/') + '/';
   let uin = new URL(requestUrl);
 
   let i = uin.pathname.indexOf(MAPTOOL_SEGMENT)
@@ -34,8 +32,11 @@ export async function POSTproxy (event, maptoolUrl, options) {
     throw new Error(`bad path, missing ${MAPTOOL_SEGMENT} in ${uin.href}`)
   }
 
-  let path = trimStart(uin.pathname.slice(i+MAPTOOL_SEGMENT.length), '/')
-  let api = trimEnd(maptoolUrl, '/')
+  let path = trimStart(uin.pathname.slice(i+MAPTOOL_SEGMENT.length), '/');
+  if (options.forceIndex)
+    path = trimEnd(path, '/') + '/';
+
+  let api = trimEnd(maptoolUrl, '/');
 
   const data = await event.request.json();
   console.log(JSON.stringify(data, null, ' . '));
