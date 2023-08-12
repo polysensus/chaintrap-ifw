@@ -9,8 +9,8 @@
  * are taken from the request instance. But ALL attributes of updateOptions will
  * be present in the returned options
  */
-export function deriveOptions (request, updateOptions) {
-  const options = {}
+export function deriveOptions(request, updateOptions) {
+  const options = {};
 
   for (const key of [
     'method',
@@ -24,26 +24,27 @@ export function deriveOptions (request, updateOptions) {
     'referrerPolicy',
     'integrity',
     'keepalive',
-    'signal']) {
+    'signal'
+  ]) {
     if (typeof request?.[key] !== 'undefined') {
-      options[key] = request[key]
+      options[key] = request[key];
     }
   }
 
   if (typeof request?.headers !== 'undefined') {
-    options.headers = new Headers(request.headers)
+    options.headers = new Headers(request.headers);
   }
   if (typeof updateOptions?.headers !== 'undefined') {
     if (typeof options.headers === 'undefined') {
-      options.headers = new Headers(updateOptions.headers)
+      options.headers = new Headers(updateOptions.headers);
     } else {
       for (const [name, value] of updateOptions.headers) {
-        options.headers.append(name, value)
+        options.headers.append(name, value);
       }
     }
   }
 
-  return { ...options, ...updateOptions }
+  return { ...options, ...updateOptions };
 }
 
 /**
@@ -53,15 +54,13 @@ export function deriveOptions (request, updateOptions) {
  *  Uncaught SyntaxError: ambiguous indirect export: is_external_url
  *  for @sveltejs/kit 1.0.0-next.573
  * @param {*} data any object
- * @returns 
+ * @returns
  */
 export function json(data) {
   const response = new Response(JSON.stringify(data), {
     status: 200,
     statusText: 'OK',
-    headers: [
-      ['content-type', 'application/json']
-    ]
+    headers: [['content-type', 'application/json']]
   });
   return response;
 }

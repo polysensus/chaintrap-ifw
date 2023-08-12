@@ -4,7 +4,7 @@ import { action } from '@storybook/addon-actions';
 
 export const actionsData = {
   onPinTask: action('onPinTask'),
-  onArchiveTask: action('onArchiveTask'),
+  onArchiveTask: action('onArchiveTask')
 };
 
 export default {
@@ -14,16 +14,16 @@ export default {
   //👇 The argTypes are included so that they are properly displayed in the Actions Panel
   argTypes: {
     onPinTask: { action: 'onPinTask' },
-    onArchiveTask: { action: 'onArchiveTask' },
-  },
+    onArchiveTask: { action: 'onArchiveTask' }
+  }
 };
 
 const Template = ({ onArchiveTask, onPinTask, ...args }) => ({
   Component: Task,
   props: args,
   on: {
-    ...actionsData,
-  },
+    ...actionsData
+  }
 });
 
 export const Default = Template.bind({});
@@ -31,21 +31,21 @@ Default.args = {
   task: {
     id: '1',
     title: 'Test Task',
-    state: 'TASK_INBOX',
-  },
+    state: 'TASK_INBOX'
+  }
 };
 export const Pinned = Template.bind({});
 Pinned.args = {
   task: {
     ...Default.args.task,
-    state: 'TASK_PINNED',
-  },
+    state: 'TASK_PINNED'
+  }
 };
 
 export const Archived = Template.bind({});
 Archived.args = {
   task: {
     ...Default.args.task,
-    state: 'TASK_ARCHIVED',
-  },
+    state: 'TASK_ARCHIVED'
+  }
 };

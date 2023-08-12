@@ -5,13 +5,12 @@ export default {
   title: 'atoms/PasswordInput',
   excludeStories: /.*Data$/,
   //👇 The argTypes are included so that they are properly displayed in the Actions Panel
-  argTypes: {
-  },
+  argTypes: {}
 };
 
 const Template = ({ ...args }) => ({
   Component: PasswordInput,
-  props: args,
+  props: args
   // on: {
   //   ...actionsData,
   // },
@@ -20,8 +19,7 @@ const Template = ({ ...args }) => ({
 export const Default = Template.bind({});
 Default.args = {
   // Note: we need the /static prefix here, but it should be ommited from svelte rendered pages
-  id: "a_password",
-  label: "Password",
+  id: 'a_password',
+  label: 'Password',
   value: undefined
 };
-

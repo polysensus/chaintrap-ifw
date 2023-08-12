@@ -1,18 +1,17 @@
 import TrialsCard from './TrialsCard.svelte';
-import { trials2Basic } from "./test.data.trials";
+import { trials2Basic } from './test.data.trials';
 
 export default {
   component: TrialsCard,
   title: 'trials/TrialsCard',
   excludeStories: /.*Data$/,
   //👇 The argTypes are included so that they are properly displayed in the Actions Panel
-  argTypes: {
-  },
+  argTypes: {}
 };
 
 const Template = ({ ...args }) => ({
   Component: TrialsCard,
-  props: args,
+  props: args
   // on: {
   //   ...actionsData,
   // },
@@ -20,10 +19,9 @@ const Template = ({ ...args }) => ({
 
 export const Default = Template.bind({});
 Default.args = {
-  viewName: "The view",
+  viewName: 'The view',
   trials: trials2Basic,
   selected: {
-    gid: trials2Basic[0].gid,
-  },
+    gid: trials2Basic[0].gid
+  }
 };
-

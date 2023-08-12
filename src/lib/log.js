@@ -1,17 +1,17 @@
-import log from 'loglevel'
+import log from 'loglevel';
 
-const dev = true
+const dev = true;
 
 export class Null {
-  trace (...args) {}
-  debug (...args) {}
-  info (...args) {}
-  warn (...args) {}
+  trace(...args) {}
+  debug(...args) {}
+  info(...args) {}
+  warn(...args) {}
 }
 
 // const enabled = undefined
-const disabled = { }
-const enabled = undefined
+const disabled = {};
+const enabled = undefined;
 //const enabled = {
 //  // RootMouseControler: true,
 //  Dungeon: true,
@@ -22,27 +22,26 @@ const enabled = undefined
 ////   StateRoster: true
 //}
 
-
-export function getLogger (name) {
-  const enable = typeof enabled === 'undefined' || enabled[name]
-  const disable = typeof disabled !== 'undefined' && typeof disabled[name] !== 'undefined'
+export function getLogger(name) {
+  const enable = typeof enabled === 'undefined' || enabled[name];
+  const disable = typeof disabled !== 'undefined' && typeof disabled[name] !== 'undefined';
 
   if (!enable || disable) {
-    const _log = new Null()
+    const _log = new Null();
     try {
-      _log.debug('xxx')
+      _log.debug('xxx');
     } catch (e) {
-      console.log(`LOG LOG LOG BROKEN ${[e, JSON.stringify(e)]}`)
+      console.log(`LOG LOG LOG BROKEN ${[e, JSON.stringify(e)]}`);
     }
-    return _log
+    return _log;
   }
-  const _log = log.getLogger(Symbol.for(name))
+  const _log = log.getLogger(Symbol.for(name));
   if (dev) {
-    _log.setLevel('TRACE')
+    _log.setLevel('TRACE');
     // _log.info('log level: TRACE')
   } else {
-    _log.setLevel('INFO')
+    _log.setLevel('INFO');
     // _log.info('log level: INFO')
   }
-  return _log
+  return _log;
 }

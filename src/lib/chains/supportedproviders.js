@@ -1,11 +1,11 @@
-import { ProviderType } from '@polysensus/chaintrap-arenastate'
+import { ProviderType } from '@polysensus/chaintrap-arenastate';
 
 export const all = {};
 all['op-goerli'] = {
-    name: "op-goerli",
-    type: ProviderType.Web3AuthModal,
-    fetch: true
-  }
+  name: 'op-goerli',
+  type: ProviderType.Web3AuthModal,
+  fetch: true
+};
 
 all['hardhat'] = {
   name: 'hardhat',
@@ -30,4 +30,4 @@ all['hardhat'] = {
 
 export const testNetworks = {
   hardhat: all.hardhat
-}
+};

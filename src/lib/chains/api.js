@@ -1,1 +1,1 @@
-export const apiPath = '/api/chains/'
+export const apiPath = '/api/chains/';

@@ -1,15 +1,16 @@
-{#if selected}
-<Badge border color={selectedColor}><slot/></Badge>
-{:else}
-<Badge border color={offColor}><slot/></Badge>
-{/if}
 <script>
-  import {Badge} from 'flowbite-svelte';
+  import { Badge } from 'flowbite-svelte';
 
   // @type boolean
   export let selected = false;
   // @type string
-  export let selectedColor = "primary";
+  export let selectedColor = 'primary';
   // @type string
-  export let offColor = "dark"
+  export let offColor = 'dark';
 </script>
+
+{#if selected}
+  <Badge border color={selectedColor}><slot /></Badge>
+{:else}
+  <Badge border color={offColor}><slot /></Badge>
+{/if}

@@ -1,4 +1,4 @@
-import {ethers} from "ethers";
+import { ethers } from 'ethers';
 import TrialsTable from './TrialsTable.svelte';
 
 export default {
@@ -6,13 +6,12 @@ export default {
   title: 'trials/TrialTable',
   excludeStories: /.*Data$/,
   //👇 The argTypes are included so that they are properly displayed in the Actions Panel
-  argTypes: {
-  },
+  argTypes: {}
 };
 
 const Template = ({ ...args }) => ({
   Component: TrialsTable,
-  props: args,
+  props: args
   // on: {
   //   ...actionsData,
   // },
@@ -20,32 +19,35 @@ const Template = ({ ...args }) => ({
 
 export const Default = Template.bind({});
 Default.args = {
-  viewName: "The view",
+  viewName: 'The view',
   trials: [
-    { // chaintrap-arenastate/trialsetup.js:TrialSetup defines this format
+    {
+      // chaintrap-arenastate/trialsetup.js:TrialSetup defines this format
       gid: ethers.BigNumber.from(1),
       tokenUri: 'ipfs://xxx/yyy',
       codex: {},
       metadata: {
         // chaintrap-arenastate/erc1155metadata/gamecreator.js:configureMetadataOptions defines this format
-        name: "game one",
-        description: "The first game of chaintrap",
-        image: "ipfs://zzz/bbb"
+        name: 'game one',
+        description: 'The first game of chaintrap',
+        image: 'ipfs://zzz/bbb'
       }
-    }, {
+    },
+    {
       gid: ethers.BigNumber.from(2),
       codex: {},
       tokenUri: 'ipfs://12345aaa/yyy',
       metadata: {
         // chaintrap-arenastate/erc1155metadata/gamecreator.js:configureMetadataOptions defines this format
-        name: "game two",
-        description: "The first game of chaintrap",
-        image: "ipfs://zzz/bbb"
+        name: 'game two',
+        description: 'The first game of chaintrap',
+        image: 'ipfs://zzz/bbb'
       }
-    }],
+    }
+  ],
   selected: {
-    gid: ethers.BigNumber.from(1),
-  },
+    gid: ethers.BigNumber.from(1)
+  }
 };
 
 /*

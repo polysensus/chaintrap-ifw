@@ -5,13 +5,12 @@ export default {
   title: 'workflowsteps/PreviewMapCard',
   excludeStories: /.*Data$/,
   //👇 The argTypes are included so that they are properly displayed in the Actions Panel
-  argTypes: {
-  },
+  argTypes: {}
 };
 
 const Template = ({ ...args }) => ({
   Component: PreviewMapCard,
-  props: args,
+  props: args
   // on: {
   //   ...actionsData,
   // },
@@ -19,6 +18,5 @@ const Template = ({ ...args }) => ({
 
 export const Default = Template.bind({});
 Default.args = {
-  mapImg: "/static/content/maps/map.svg"
+  mapImg: '/static/content/maps/map.svg'
 };
-

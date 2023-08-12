@@ -6,14 +6,14 @@
   // event handler for Pin Task
   function PinTask() {
     dispatch('onPinTask', {
-      id: task.id,
+      id: task.id
     });
   }
 
   // event handler for Archive Task
   function ArchiveTask() {
     dispatch('onArchiveTask', {
-      id: task.id,
+      id: task.id
     });
   }
 
@@ -21,7 +21,7 @@
   export let task = {
     id: '',
     title: '',
-    state: '',
+    state: ''
   };
 </script>
 

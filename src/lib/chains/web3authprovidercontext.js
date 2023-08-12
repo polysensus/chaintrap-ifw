@@ -1,15 +1,11 @@
-import { ethers } from "ethers";
+import { ethers } from 'ethers';
 
-import {
-  ProviderContext,
-} from '@polysensus/chaintrap-arenastate';
+import { ProviderContext } from '@polysensus/chaintrap-arenastate';
 
 import { apiPath } from './api.js';
 
 export class Web3AuthModalProviderContext extends ProviderContext {
-
   constructor(cfg = {}) {
-
     super(cfg);
     this.modalOpen = false;
     this.web3auth = undefined;
@@ -19,10 +15,11 @@ export class Web3AuthModalProviderContext extends ProviderContext {
   /**
    * For Web3 we start with a normal rpc provider. In resume, which is triggered
    * on select, we initiate the web3auth flow.
-   * @returns 
+   * @returns
    */
-  async prepareProvider (switcher) {
-    if (!switcher) throw new Error(`the web3auth provider context requires access to the switcher here`);
+  async prepareProvider(switcher) {
+    if (!switcher)
+      throw new Error(`the web3auth provider context requires access to the switcher here`);
 
     if (this.cfg.fetch) {
       const resp = await fetch(`${apiPath}${this.cfg.name}`);
@@ -31,14 +28,15 @@ export class Web3AuthModalProviderContext extends ProviderContext {
         const error = JSON.stringify(remoteCfg.error);
         throw new Error(error);
       }
-      this.cfg = {...this.cfg, ...remoteCfg}
+      this.cfg = { ...this.cfg, ...remoteCfg };
     }
     await switcher.addNetwork(this.cfg);
     return this;
   }
 
   async resume(switcher) {
-    if (!switcher) throw new Error(`the web3auth provider context requires access to the switcher here`);
+    if (!switcher)
+      throw new Error(`the web3auth provider context requires access to the switcher here`);
     try {
       this.modalOpen = true;
       await this.web3auth.connect();

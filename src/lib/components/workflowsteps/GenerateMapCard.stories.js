@@ -5,19 +5,16 @@ export default {
   title: 'workflowsteps/GenerateMapCard',
   excludeStories: /.*Data$/,
   //👇 The argTypes are included so that they are properly displayed in the Actions Panel
-  argTypes: {
-  },
+  argTypes: {}
 };
 
 const Template = ({ ...args }) => ({
   Component: GenerateMapCard,
-  props: args,
+  props: args
   // on: {
   //   ...actionsData,
   // },
 });
 
 export const Default = Template.bind({});
-Default.args = {
-};
-
+Default.args = {};

@@ -11,59 +11,59 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import path from 'path';
 
 export default defineConfig({
-	plugins: [
-		sveltekit(),
-		nodePolyfills({
-			// globals: {
-			// 	global: true,
-			// 	Buffer: 'dev'
-			// },
-			protocolImports: true
-		})
-	],
-	// esbuild: {
-	//   plugins: [NodeGlobalsPolyfillPlugin({buffer:true}), NodeModulesPolyfillPlugin()]
-	// },
+  plugins: [
+    sveltekit(),
+    nodePolyfills({
+      // globals: {
+      // 	global: true,
+      // 	Buffer: 'dev'
+      // },
+      protocolImports: true
+    })
+  ],
+  // esbuild: {
+  //   plugins: [NodeGlobalsPolyfillPlugin({buffer:true}), NodeModulesPolyfillPlugin()]
+  // },
 
-	test: {
-		include: ['src/**/*.{test,spec}.{js,ts}']
-	},
-	// https://medium.com/@ftaioli/using-node-js-builtin-modules-with-vite-6194737c2cd2
-	// for resolve, optimizeDeps, build.rollupOptions
-	resolve: {
-		alias: {
-			$assets: path.resolve('./static'),
-			$api: path.resolve('/src/routes/api'),
-			// Errors like,
-			//  RollupError: "Buffer" is not exported by "__vite-browser-external"
-			// can be resolved by adding the appropriate polyfill alias here
-			// process: 'rollup-plugin-node-pollyfills/polyfills/process-es6',
-			// buffer: 'rollup-plugin-node-polyfills/polyfills/buffer-es6' OK but this package is sort of abandoned
-			// path: 'rollup-plugin-polyfill-node/dist/polyfills.js',
-			// buffer: 'rollup-plugin-polyfill-node/dist/polyfills.js'
-			stream: 'stream-browserify',
-			crypto: 'crypto-browserify',
-			assert: 'assert'
-		}
-	},
-	optimizeDeps: {
-		include: [],
-		esbuildOptions: {
-			define: {
-				global: 'globalThis'
-			},
-			plugins: []
-		}
-	},
-	server: {
-		fs: {
-			allow: [searchForWorkspaceRoot(process.cwd())]
-		}
-	},
-	build: {
-		target: 'es2022',
-		rollupOptions: {
-			plugins: []
-		}
-	}
+  test: {
+    include: ['src/**/*.{test,spec}.{js,ts}']
+  },
+  // https://medium.com/@ftaioli/using-node-js-builtin-modules-with-vite-6194737c2cd2
+  // for resolve, optimizeDeps, build.rollupOptions
+  resolve: {
+    alias: {
+      $assets: path.resolve('./static'),
+      $api: path.resolve('/src/routes/api'),
+      // Errors like,
+      //  RollupError: "Buffer" is not exported by "__vite-browser-external"
+      // can be resolved by adding the appropriate polyfill alias here
+      // process: 'rollup-plugin-node-pollyfills/polyfills/process-es6',
+      // buffer: 'rollup-plugin-node-polyfills/polyfills/buffer-es6' OK but this package is sort of abandoned
+      // path: 'rollup-plugin-polyfill-node/dist/polyfills.js',
+      // buffer: 'rollup-plugin-polyfill-node/dist/polyfills.js'
+      stream: 'stream-browserify',
+      crypto: 'crypto-browserify',
+      assert: 'assert'
+    }
+  },
+  optimizeDeps: {
+    include: [],
+    esbuildOptions: {
+      define: {
+        global: 'globalThis'
+      },
+      plugins: []
+    }
+  },
+  server: {
+    fs: {
+      allow: [searchForWorkspaceRoot(process.cwd())]
+    }
+  },
+  build: {
+    target: 'es2022',
+    rollupOptions: {
+      plugins: []
+    }
+  }
 });

@@ -1,11 +1,9 @@
-import {
-  ProviderContext,
-} from '@polysensus/chaintrap-arenastate'
+import { ProviderContext } from '@polysensus/chaintrap-arenastate';
 
 import { apiPath } from './api.js';
 
 export class FetchProviderContext extends ProviderContext {
-  async prepareProvider () {
+  async prepareProvider() {
     if (this.cfg.fetch) {
       const resp = await fetch(`${apiPath}${this.cfg.name}`);
       const remoteCfg = await resp.json();
@@ -13,7 +11,7 @@ export class FetchProviderContext extends ProviderContext {
         const error = JSON.stringify(remoteCfg.error);
         throw new Error(error);
       }
-      this.cfg = {...this.cfg, ...remoteCfg}
+      this.cfg = { ...this.cfg, ...remoteCfg };
     }
     return super.prepareProvider();
   }

@@ -19,7 +19,7 @@ export const defaultSVGFilename = 'map.svg';
  *  svg:boolean?,
  *  svgFilename:string?,
  *  codexPassword:string?,
- *  codexGeneratePassword:boolean?}} options 
+ *  codexGeneratePassword:boolean?}} options
  * @returns {Promise<{
  *  ok:boolean,
  *  password:string|null,
@@ -32,7 +32,6 @@ export const defaultSVGFilename = 'map.svg';
  * }>}
  */
 export async function newMapCodex(params, options) {
-
   /** @type {{
    * ok:boolean,
    *  password:string|null,
@@ -44,7 +43,7 @@ export async function newMapCodex(params, options) {
    *  data:string|undefined
    * }} */
   const result = {
-    ok:false,
+    ok: false,
     password: null,
     passwordGenerated: false,
     committedJson: undefined,
@@ -52,13 +51,13 @@ export async function newMapCodex(params, options) {
     mapSVG: undefined,
     codex: undefined,
     data: undefined
-  }
+  };
 
   let password = options.codexPassword ?? null;
   let passwordGenerated = password ? true : false;
   if (password === null && options.codexGeneratePassword) {
     const g = new NameGenerator({ fetch });
-    password = (await g.getSurnames(2)).join("-");
+    password = (await g.getSurnames(2)).join('-');
     result.passwordGenerated = true;
     result.password = password;
   }
@@ -67,46 +66,46 @@ export async function newMapCodex(params, options) {
   await codex.derivePasswordKeys([password]);
 
   var req = {
-    credentials: "omit",
-    method: "POST",
-    mode: "cors",
+    credentials: 'omit',
+    method: 'POST',
+    mode: 'cors',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      gp: params,
-    }),
+      gp: params
+    })
   };
 
   let baseUrl = options.maptoolUrl;
-  if (!baseUrl.endsWith("/")) baseUrl = baseUrl + "/";
+  if (!baseUrl.endsWith('/')) baseUrl = baseUrl + '/';
   let url = `${baseUrl}commit/`;
   let resp = await fetch(url, req);
   const committed = await resp.json();
-  result.committedJson = JSON.stringify(committed, null, "  ");
+  result.committedJson = JSON.stringify(committed, null, '  ');
   codex.addItem(codex.dataFromObject(committed), {
-    name: "committed",
-    content_type: "application/json",
-    encrypted: password !== null,
+    name: 'committed',
+    content_type: 'application/json',
+    encrypted: password !== null
   });
 
   req.body = JSON.stringify({
     public_key: committed.public_key,
     alpha: committed.alpha,
     beta: committed.beta,
-    pi: committed.pi,
+    pi: committed.pi
   });
 
   url = `${baseUrl}generate/`;
   // info(`generating for alpha string: ${committed.alpha}`);
   resp = await fetch(url, req);
   const map = await resp.json();
-  const mapJson = JSON.stringify(map, null, "  ");
+  const mapJson = JSON.stringify(map, null, '  ');
   result.mapJson = mapJson;
   codex.addItem(codex.dataFromObject(map), {
-    name: "map",
-    content_type: "application/json",
-    encrypted: password !== null,
+    name: 'map',
+    content_type: 'application/json',
+    encrypted: password !== null
   });
 
   if (options.svg) {
@@ -117,13 +116,13 @@ export async function newMapCodex(params, options) {
     codex.addItem(
       codex.dataFromObject({
         filename: options.svgFilename ?? defaultSVGFilename,
-        content: svg,
+        content: svg
       }),
-      { name: "svg", content_type: "image/svg+xml" }
+      { name: 'svg', content_type: 'image/svg+xml' }
     );
   }
 
-  result.data = JSON.stringify(codex.serialize(), null, " ");
+  result.data = JSON.stringify(codex.serialize(), null, ' ');
   result.codex = codex;
   result.ok = true;
   return result;
