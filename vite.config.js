@@ -20,9 +20,9 @@ export default defineConfig({
       protocolImports: true
     })
   ],
-  esbuild: {
-    plugins: [NodeGlobalsPolyfillPlugin({buffer:true}), NodeModulesPolyfillPlugin()]
-  },
+  // esbuild: {
+  //   plugins: [NodeGlobalsPolyfillPlugin({buffer:true}), NodeModulesPolyfillPlugin()]
+  // },
 
 	test: {
 		include: ['src/**/*.{test,spec}.{js,ts}']
