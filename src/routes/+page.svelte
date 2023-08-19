@@ -14,15 +14,17 @@
   // import {Web3AuthModalProviderSwitch } from '$lib/chains/web3authproviderswitch.js';
   // import {Web3Auth} from "@web3auth/modal";
 
-  import { providers as testProviders } from '$lib/components/presence/test.data.providers.js';
-
   const presence = new ChainPresence({ networks: all });
   let providers = [];
   let cfg;
-  let mapImg = '/content/maps/map.svg';
   let mapParams = {};
   let maptoolUrl = '/api/maptool';
-  let result;
+  let mapImg = '';
+  let mapJson;
+  let codex;
+  let data;
+  let committedJson;
+
 
   async function onClickGenerate() {
     console.log(`${JSON.stringify(mapParams)}`);
@@ -30,14 +32,21 @@
     const params = { ...mapParams };
     delete params.password;
     console.log('calling newMapCodex');
-    result = await newMapCodex(params, {
+    const result = await newMapCodex(params, {
       maptoolUrl,
       svg: true,
       codexPassword: password,
       codexGeneratePassword: false
     });
-    console.log(result.mapJson);
     console.log(`ok: ${result.ok}`);
+    console.log(result.mapSVG);
+    if(!result.ok)
+      return;
+    mapJson = result.mapJson;
+    mapImg = result.mapSVG;
+    codex = result.codex;
+    data = result.data;
+    committedJson = result.committedJson;
   }
 
   // $:{
@@ -67,7 +76,5 @@
 </Navbar>
 
 <div>
-  <p>selected provider {cfg?.name} {cfg?.chainId}</p>
-  <br />
   <CreateMap {mapImg} {onClickGenerate} bind:mapParams />
 </div>

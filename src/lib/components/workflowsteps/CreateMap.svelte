@@ -27,10 +27,11 @@
   // --- component helpers
 </script>
 
-<div class="flex flex-row">
-  <PreviewMapCard {mapImg} />
-  <GenerateMapCard bind:params={mapParams} {onClickGenerate} />
+<div class="grid grid-rows-5 grid-cols-10 grid-flow-col gap-1">
+  <div class="row-span-5 col-span-3">
+    <GenerateMapCard bind:params={mapParams} {onClickGenerate} />
+  </div>
+  <div class="row-start-1 row-end-7 col-start-4 col-span-8">
+    <PreviewMapCard {mapImg} mapScale={0.8}/>
+  </div>
 </div>
-<p>
-  {JSON.stringify(mapParams, null, '  ')}
-</p>

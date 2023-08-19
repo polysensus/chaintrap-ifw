@@ -39,7 +39,7 @@ export async function POSTproxy(event, maptoolUrl, options) {
   const data = await event.request.json();
   console.log(JSON.stringify(data, null, ' . '));
 
-  const proxyUrl = new URL(MAPTOOL_SEGMENT + '/' + path, api);
+  const proxyUrl = new URL(MAPTOOL_SEGMENT + '/' + path + uin.search, api);
   console.log(
     `${event.request.url} -> ${proxyUrl}, path=${path}, api=${api}, forceIndex=${options.forceIndex}`
   );
@@ -61,16 +61,23 @@ export async function POSTproxy(event, maptoolUrl, options) {
     console.log('fetch error:', err);
     return json(err);
   }
+  console.log('content-type', upstream.headers.get('content-type'))
   try {
-    const body = JSON.stringify(await upstream.json());
+    // let body, response;
+    let contentTypeLine = upstream.headers.get('content-type');
+    // let contentType = contentTypeLine?.split(';')[0] ?? 'text/plain';
+    const headers = [
+      ['content-type', contentTypeLine],
+      ['date', upstream.headers.get('date')],
+      ['vary', upstream.headers.get('vary')]
+    ];
+
+    // const body = JSON.stringify(await upstream.json());
+    const body = await upstream.text();
     const response = new Response(body, {
       status: upstream.status,
       statusText: upstream.statusText,
-      headers: [
-        ['content-type', 'application/json'],
-        ['date', upstream.headers.get('date')],
-        ['vary', upstream.headers.get('vary')]
-      ]
+      headers
     });
     console.log('maptool status', response.statusText);
     return response;
