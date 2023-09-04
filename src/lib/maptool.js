@@ -1,4 +1,5 @@
-import { NameGenerator, BlobCodex } from '@polysensus/chaintrap-arenastate';
+import { NameGenerator } from '@polysensus/chaintrap-arenastate';
+import { BlobCodex } from '@polysensus/blobcodex';
 export const defaultSVGFilename = 'map.svg';
 /**
  * @param {{

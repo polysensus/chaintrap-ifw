@@ -20,7 +20,6 @@
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
     "@playwright/test": "^1.28.1",
-    "@polysensus/chaintrap-arenastate": "^0.0.25",
     "@rollup/plugin-commonjs": "^25.0.3",
     "@storybook/addon-actions": "^7.1.0",
     "@storybook/addon-essentials": "^7.1.0",
@@ -36,7 +35,6 @@
     "@sveltejs/adapter-auto": "^2.0.0",
     "@sveltejs/kit": "^1.20.4",
     "@web-std/stream": "^1.0.1",
-    "@web3auth/modal": "^6.1.5",
     "autoprefixer": "^10.4.14",
     "buffer-es6": "^4.9.3",
     "crypto-browserify": "^3.12.0",
@@ -44,7 +42,6 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-storybook": "^0.6.12",
     "eslint-plugin-svelte": "^2.30.0",
-    "ethers": "5.6",
     "postcss": "^8.4.26",
     "postcss-load-config": "^4.0.1",
     "prettier": "^2.8.0",
@@ -65,9 +62,19 @@
   },
   "type": "module",
   "dependencies": {
+    "@eth-optimism/sdk": "^2.0.2",
     "@floating-ui/dom": "^1.4.5",
+    "@msgpack/msgpack": "^2.8.0",
+    "@openzeppelin/merkle-tree": "^1.0.5",
+    "@polysensus/blobcodex": "file:../blobcodex",
+    "@polysensus/chaintrap-arenastate": "file:../chaintrap-arenastate",
+    "@polysensus/chaintrap-contracts": "file:../chaintrap-contracts",
+    "@polysensus/diamond-deploy": "file:../diamond-deploy",
+    "@web3auth/modal": "^6.1.5",
+    "ethers": "5.7",
     "flowbite": "^1.7.0",
     "flowbite-svelte": "^0.40.1",
+    "nft.storage": "^7.0.0",
     "tailwind-merge": "^1.14.0"
   }
 }

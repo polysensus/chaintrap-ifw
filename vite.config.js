@@ -43,7 +43,8 @@ export default defineConfig({
       // buffer: 'rollup-plugin-polyfill-node/dist/polyfills.js'
       stream: 'stream-browserify',
       crypto: 'crypto-browserify',
-      assert: 'assert'
+      assert: 'assert',
+      ethers: 'ethers'
     }
   },
   optimizeDeps: {
@@ -63,6 +64,24 @@ export default defineConfig({
   build: {
     target: 'es2022',
     rollupOptions: {
+      external: [
+        // It seems that the external prevents un-necessary bundling of node js
+        // only things which are needed for cli utilities. But anything that is
+        // actually used can't be listed here, or rather can only be listed if
+        // some other mysterious bit of config is also adjusted. Typical error
+        // when externing something that is used:
+        // .  TypeError: The specifier “@polysensus/blobcodex” was a bare specifier, but was not remapped to anything. Relative module specifiers must start with “./”, “../” or “/”.
+        // "ethers",
+        "commander",
+        // "@msgpack/msgpack",
+        "@eth-optimism/sdk",
+        // "@openzeppelin/merkle-tree",
+        // "nft.storage",
+        // "@polysensus/blobcodex",
+        // "@polysensus/chaintrap-contracts",
+        "@polysensus/diamond-deploy",
+        "ethereum-cryptography"
+      ],
       plugins: []
     }
   }
