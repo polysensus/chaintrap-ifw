@@ -1,5 +1,6 @@
 // --- lib deps
-import { Web3Auth } from '@web3auth/modal';
+import * as pkg from '@web3auth/modal';
+const { Web3Auth } = pkg;
 
 // @ts-ignore
 
