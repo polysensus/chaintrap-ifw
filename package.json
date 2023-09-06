@@ -74,6 +74,7 @@
     "ethers": "5.7",
     "flowbite": "^1.7.0",
     "flowbite-svelte": "^0.40.1",
+    "flowbite-svelte-icons": "^0.4.3",
     "nft.storage": "^7.0.0",
     "tailwind-merge": "^1.14.0"
   }
