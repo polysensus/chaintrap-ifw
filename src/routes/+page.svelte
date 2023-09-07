@@ -2,6 +2,8 @@
   import { onMount } from 'svelte';
 
   import { Alert, Chevron, Navbar, NavBrand, NavHamburger, NavUl, NavLi } from 'flowbite-svelte';
+  import { ChevronDownOutline } from 'flowbite-svelte-icons';
+
   import ProvidersDropdown from '$lib/components/presence/ProvidersDropdown.svelte';
   import CreateMap from '$lib/components/workflowsteps/CreateMap.svelte';
 
@@ -24,6 +26,7 @@
   let codex;
   let data;
   let committedJson;
+  let providerButtonText;
 
 
   async function onClickGenerate() {
@@ -68,10 +71,13 @@
       ><a href="https://www.polysensus.com" target="_blank">Polysensus</a></span
     >
   </NavBrand>
-  <NavHamburger on:click={toggle} />
-  <NavUl {hidden} class="ml-3">
+  <!--<NavHamburger on:click={toggle} /> -->
+  <NavUl {hidden} >
     <!--<NavLi href="/contact"><a href="https://www.polysensus.com" target="_blank" >Contact</a></NavLi> -->
-    <ProvidersDropdown {providers} bind:cfg />
+    <NavLi id="providers-toggle" class="cursor-pointer">
+      {providerButtonText}<!--<ChevronDownOutline class="w-3 h-3 ml-2 text-primary-800 dark:text-white inline" /> -->
+    </NavLi>
+    <ProvidersDropdown width={"w-80"} bind:buttonText={providerButtonText} {providers} bind:cfg />
   </NavUl>
 </Navbar>
 

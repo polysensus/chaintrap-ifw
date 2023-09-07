@@ -17,23 +17,18 @@
 </script>
 
 <DropdownItem on:click={onClick} class="p-2 {width}" outline={true}>
-  <div class="container m-auto grid grid-cols-2 gap-4">
+  <!--<div class="container m-auto grid grid-cols-2 gap-4">-->
+  <div>
     {#if item.img}
       <Avatar src={item.img} alt={item.imgAlt ?? 'network presence image'} class="flex-shrink-0" />
     {/if}
-    <div class="min-w-0">
-      <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
+    <div>
+      <p class="text-sm font-medium text-gray-900 break-word dark:text-white">
         <InfoBadge {selected}>{item.name}</InfoBadge>
         <InfoBadge {selected}>{item.chainId}</InfoBadge>
         {#if item.ticker}
           <InfoBadge {selected}>{item.ticker}</InfoBadge>
         {/if}
-      </p>
-      <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
-        {item.description ?? 'a network connector and wallet context'}
-      </p>
-    </div>
-    <div class="text-base text-gray-900 dark:text-white">
       {#if selected}
         <Badge color="dark">
           <Icon.ArrowRightOnRectangle size="20" />
@@ -43,6 +38,14 @@
           <Icon.Signal size="20" />
         </Badge>
       {/if}
+      </p>
+
+    </div>
+    <div class="text-base text-gray-900 dark:text-white">
+      <p class="text-sm font-medium text-gray-900 break-word dark:text-white">
+        {item.description ?? 'a network connector and wallet context'}
+      </p>
+
     </div>
   </div>
 </DropdownItem>
