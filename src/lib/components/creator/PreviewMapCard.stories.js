@@ -1,15 +1,15 @@
-import CreateMap from '$lib/components/workflowsteps/CreateMap.svelte';
+import PreviewMapCard from '$lib/components/creator/PreviewMapCard.svelte';
 
 export default {
-  component: CreateMap,
-  title: 'workflowsteps/CreateMap',
+  component: PreviewMapCard,
+  title: 'creator/PreviewMapCard',
   excludeStories: /.*Data$/,
   //👇 The argTypes are included so that they are properly displayed in the Actions Panel
   argTypes: {}
 };
 
 const Template = ({ ...args }) => ({
-  Component: CreateMap,
+  Component: PreviewMapCard,
   props: args
   // on: {
   //   ...actionsData,
@@ -18,6 +18,5 @@ const Template = ({ ...args }) => ({
 
 export const Default = Template.bind({});
 Default.args = {
-  // Note: we need the /static prefix here, but it should be ommited from svelte rendered pages
   mapImg: '/static/content/maps/map.svg'
 };

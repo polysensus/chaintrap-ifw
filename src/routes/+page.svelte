@@ -1,11 +1,13 @@
 <script>
   import { onMount } from 'svelte';
 
-  import { Alert, Chevron, Navbar, NavBrand, NavHamburger, NavUl, NavLi } from 'flowbite-svelte';
-  import { ChevronDownOutline } from 'flowbite-svelte-icons';
+  import { Skeleton, ImagePlaceholder} from 'flowbite-svelte';
+  import { Navbar, NavBrand, NavUl, NavLi } from 'flowbite-svelte';
 
   import ProvidersDropdown from '$lib/components/presence/ProvidersDropdown.svelte';
-  import CreateMap from '$lib/components/workflowsteps/CreateMap.svelte';
+  import CreateMapDrawer from '$lib/components/creator/CreateMapDrawer.svelte';
+  import PreviewMapCard from '$lib/components/creator/PreviewMapCard.svelte';
+  import BottomBar from '$lib/components/bottombar/BottomBar.svelte';
 
   import { ChainPresence } from '$lib/chains/presence.js';
   import { all } from '$lib/chains/supportedproviders.js';
@@ -27,6 +29,7 @@
   let data;
   let committedJson;
   let providerButtonText;
+  let createOn = false;
 
 
   async function onClickGenerate() {
@@ -82,5 +85,14 @@
 </Navbar>
 
 <div>
-  <CreateMap {mapImg} {onClickGenerate} bind:mapParams />
+  <!--
+  <Skeleton class="py-4" />
+  <ImagePlaceholder class="pb-20" />
+  -->
+
+  {#if mapImg}
+    <PreviewMapCard {mapImg} mapScale={1.0}/>
+  {/if}
+  <CreateMapDrawer {onClickGenerate} bind:mapParams bind:hidden={createOn} />
+  <BottomBar bind:createOn/>
 </div>

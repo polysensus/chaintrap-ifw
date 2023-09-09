@@ -1,15 +1,15 @@
-import PreviewMapCard from '$lib/components/workflowsteps/PreviewMapCard.svelte';
+import GenerateMapCard from '$lib/components/creator/GenerateMapCard.svelte';
 
 export default {
-  component: PreviewMapCard,
-  title: 'workflowsteps/PreviewMapCard',
+  component: GenerateMapCard,
+  title: 'creator/GenerateMapCard',
   excludeStories: /.*Data$/,
   //👇 The argTypes are included so that they are properly displayed in the Actions Panel
   argTypes: {}
 };
 
 const Template = ({ ...args }) => ({
-  Component: PreviewMapCard,
+  Component: GenerateMapCard,
   props: args
   // on: {
   //   ...actionsData,
@@ -17,6 +17,4 @@ const Template = ({ ...args }) => ({
 });
 
 export const Default = Template.bind({});
-Default.args = {
-  mapImg: '/static/content/maps/map.svg'
-};
+Default.args = {};

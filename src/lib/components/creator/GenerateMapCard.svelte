@@ -2,6 +2,7 @@
   // --- lib deps
   // --- external components
   import { Button, Card } from 'flowbite-svelte';
+  import { AccordionItem, Accordion } from 'flowbite-svelte';
   import { twMerge } from 'tailwind-merge';
   // --- components
   import NumberInput from '$lib/components/atoms/NumberInput.svelte';
@@ -60,6 +61,8 @@
   let model = 'tinykeep';
   /** @type string|null*/
   let password = null; // null is save in clear
+  
+  export let edditingGuidance = false;
 
   // let instance = undefined
   // --- svelte lifecycle callbacks
@@ -81,6 +84,11 @@
         Adjust these to influence how the dungeon is generated
       </p>
       <div class="grid gap-6 mb-6 md:grid-cols-2">
+      <Button color="alternative" on:click={() => {edditingGuidance = !!!edditingGuidance}}>{edditingGuidance ? "Hide Inputs" : "Adjust Inputs"}</Button>
+      <p class='break-all'>arena_size={arena_size},rooms={rooms},tile_snap_size={tile_snap_size},room_szmax={room_szmax},room_szmin={room_szmin},room_szratio={room_szratio},min_separation_factor={min_separation_factor},corridor_redundancy={corridor_redundancy},main_room_thresh={main_room_thresh}</p>
+      </div>
+      {#if edditingGuidance}
+      <div class="grid gap-6 mb-6 md:grid-cols-2">
         <NumberInput id="arena_size" label="Arena size" bind:value={arena_size} />
         <NumberInput id="rooms" label="Rooms" bind:value={rooms} />
         <NumberInput id="tile_snap_size" label="Tile snap" bind:value={tile_snap_size} />
@@ -97,6 +105,7 @@
         <NumberInput id="tan_fudge" label="Tan fudge" bind:value={tan_fudge} />
         <StringInput id="model" label="Model" bind:value={model} readonly={true} />
       </div>
+      {/if}
       <div class="grid gap-6 mb-6 md:grid-cols-1">
         <PasswordInput
           id="chaintrap_map_password"
