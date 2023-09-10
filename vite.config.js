@@ -57,9 +57,19 @@ export default defineConfig({
     }
   },
   server: {
+    port: 3000,
     fs: {
       allow: [searchForWorkspaceRoot(process.cwd())]
-    }
+    },
+    cors: {
+      origin: [
+        'http://localhost:3000', 'http://localhost', 'http:127.0.0.1',
+        'https://hoy.polysensus.io',
+        'https://chains.hoy.polysensus.io',
+        'https://chaintrap.hoy.polysensus.io'
+      ],
+      methods: ['GET', 'HEAD', 'OPTIONS', 'POST', 'PUT']
+    },
   },
   build: {
     target: 'es2022',
