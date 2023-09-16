@@ -7,6 +7,6 @@ export function GET() {
   return json({
     // web3auth - https://web3auth.io/docs/sdk/web/modal/initialize
     clientId: env['PUBLIC_WEB3AUTH_CLIENT_ID'],
-    web3AuthNetwork: 'testnet'
+    web3AuthNetwork: 'mainnet'
   });
 }
