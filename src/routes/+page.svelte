@@ -31,6 +31,14 @@
   let providerButtonText;
   let createOn = false;
 
+  async function onProviderSelect(cfg) {
+    await presence.selectProvider(cfg.name);
+  }
+  async function onProviderDeselect(cfg) {
+    presence.logout();
+  }
+  function def() {}
+
 
   async function onClickGenerate() {
     console.log(`${JSON.stringify(mapParams)}`);
@@ -80,7 +88,16 @@
     <NavLi id="providers-toggle" class="cursor-pointer">
       {providerButtonText}<!--<ChevronDownOutline class="w-3 h-3 ml-2 text-primary-800 dark:text-white inline" /> -->
     </NavLi>
-    <ProvidersDropdown width={"w-80"} bind:buttonText={providerButtonText} {providers} bind:cfg />
+    <!--
+      onSelect={onProviderSelect},
+      onDeselect={onProviderDeselect},
+    -->
+    <ProvidersDropdown width={"w-80"}
+      {providers}
+      onSelect={onProviderSelect}
+      onDeselect={onProviderDeselect}
+      bind:buttonText={providerButtonText}
+      bind:cfg />
   </NavUl>
 </Navbar>
 

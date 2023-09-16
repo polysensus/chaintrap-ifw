@@ -8,6 +8,9 @@
    */
   export let providers;
 
+  export let onSelect = async (cfg) => {}
+  export let onDeselect = async (cfg) => {}
+
   /**
    * @type string
    */
@@ -27,8 +30,15 @@
     updateSelection(selected);
   }
 
-  function handleClick(item) {
+  async function handleClick(item) {
+    const previous = cfg;
+    // clicking on the same item twice, triggers 'logout';
+    if (previous?.name ?? '' !== '')
+      await onDeselect(previous);
+
     updateSelection(typeof item !== 'undefined' && item?.name === selected ? '' : item.name);
+    if (cfg && cfg?.name !== '')
+      await onSelect(cfg)
   }
 
   function updateSelection(name) {
@@ -45,6 +55,7 @@
         break;
       }
     if (typeof cfg === 'undefined') throw new Error(`bad selection for ${name}`);
+    return cfg;
   }
 </script>
 
@@ -76,7 +87,7 @@
     <DropdownItemConnector
       {item}
       {width}
-      onClick={() => handleClick(item)}
+      onClick={async () => await handleClick(item)}
       selected={item.name === selected}
     />
   {/each}

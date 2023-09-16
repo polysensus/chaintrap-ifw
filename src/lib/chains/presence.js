@@ -41,9 +41,15 @@ export class ChainPresence {
     this.providerName = writable(undefined);
   }
   logout() {
+    if (!get(this.authenticated)) return;
     this.providerSwitch.logout();
   }
 
+  /**
+   * 
+   * @param {string} providerName 
+   * @returns 
+   */
   async selectProvider(providerName) {
     if (!providerName) {
       console.info(`clearing provider selection`);
@@ -52,7 +58,7 @@ export class ChainPresence {
     }
 
     // Prioritize the provider selection
-    if (providerName == this.providerName) {
+    if (providerName == get(this.providerName)) {
       return;
     }
 
