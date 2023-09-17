@@ -1,6 +1,21 @@
 import { NameGenerator } from '@polysensus/chaintrap-arenastate';
 import { BlobCodex } from '@polysensus/blobcodex';
 export const defaultSVGFilename = 'map.svg';
+
+/**
+ * @param {any} serialized
+ * @param {{
+ *  codexPassword?:string}} options
+
+ * @param {*} options 
+ */
+export async function hydrateCodex(serialized, options={}) {
+  const hydrateOpts = {...options}
+  delete hydrateOpts.codexPassword;
+  return BlobCodex.hydrate(serialized, [options?.codexPassword ?? null], hydrateOpts);
+}
+
+
 /**
  * @param {{
  *  arena_size:number,
@@ -38,6 +53,7 @@ export async function newMapCodex(params, options) {
    *  password:string|null,
    *  passwordGenerated:boolean,
    *  committedJson:string|undefined,
+   *  map:object|undefined,
    *  mapJson:string|undefined,
    *  mapSVG:string|undefined,
    *  codex:BlobCodex|undefined,
@@ -48,6 +64,7 @@ export async function newMapCodex(params, options) {
     password: null,
     passwordGenerated: false,
     committedJson: undefined,
+    map: undefined,
     mapJson: undefined,
     mapSVG: undefined,
     codex: undefined,
@@ -102,6 +119,7 @@ export async function newMapCodex(params, options) {
   resp = await fetch(url, req);
   const map = await resp.json();
   const mapJson = JSON.stringify(map, null, '  ');
+  result.map = map;
   result.mapJson = mapJson;
   codex.addItem(codex.dataFromObject(map), {
     name: 'map',

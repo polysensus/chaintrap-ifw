@@ -1,0 +1,4 @@
+{
+  "timeout": "40000",
+  "require": ["tests/mocha-root-hooks.js"]
+}
