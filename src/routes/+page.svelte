@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
+  import { writable } from 'svelte/store';
 
-  import { Skeleton, ImagePlaceholder} from 'flowbite-svelte';
   import { Navbar, NavBrand, NavUl, NavLi } from 'flowbite-svelte';
 
   import ProvidersDropdown from '$lib/components/presence/ProvidersDropdown.svelte';
@@ -12,24 +12,42 @@
   import { ChainPresence } from '$lib/chains/presence.js';
   import { all } from '$lib/chains/supportedproviders.js';
 
-  import { newMapCodex } from '$lib/maptool.js';
-  // import {FetchProviderContext } from '$lib/chains/fetchprovidercontext.js';
-  // import {Web3AuthModalProviderContext } from '$lib/chains/web3authprovidercontext.js';
-  // import {Web3AuthModalProviderSwitch } from '$lib/chains/web3authproviderswitch.js';
-  // import {Web3Auth} from "@web3auth/modal";
+  import { newMapCodex, hydrateCodex } from '$lib/maptool.js';
+  import { TrialContent } from '$lib/clientdata/trialcontent.js';
+  import { updated } from '$app/stores';
 
   const presence = new ChainPresence({ networks: all });
   let providers = [];
   let cfg;
   let mapParams = {};
   let maptoolUrl = '/api/maptool';
-  let mapImg = '';
-  let mapJson;
-  let codex;
-  let data;
-  let committedJson;
+  let mapImg = writable('');
+  let codex = undefined;
+  /** @type {string|undefined}*/
   let providerButtonText;
   let createOn = false;
+  /** @type {TrialContent|undefined}*/
+  let trialdb = undefined;
+
+  $: {
+
+    // TODO: password handling, check for password being used by iterating over
+    // keys and checking if any != null If there are passwords, assume only one
+    // and use the password from the current Create dungeon card. Not great, but
+    // will serve for now.
+    if(codex)
+      mapImg.set(codex.objectFromData(codex.getIndexedItem('svg', {ikey:0})).content ?? '');
+  }
+
+  async function codexUpdate() {
+    if (!trialdb) return;
+    const serialized = await trialdb.lastCodex();
+    if (!serialized) {
+      codex = undefined
+      return;
+    }
+    codex = await hydrateCodex(serialized);
+  }
 
   async function onProviderSelect(cfg) {
     await presence.selectProvider(cfg.name);
@@ -37,8 +55,6 @@
   async function onProviderDeselect(cfg) {
     presence.logout();
   }
-  function def() {}
-
 
   async function onClickGenerate() {
     console.log(`${JSON.stringify(mapParams)}`);
@@ -53,14 +69,16 @@
       codexGeneratePassword: false
     });
     console.log(`ok: ${result.ok}`);
-    console.log(result.mapSVG);
-    if(!result.ok)
+    if(!(trialdb && result && result.ok && result.codex))
       return;
-    mapJson = result.mapJson;
-    mapImg = result.mapSVG;
-    codex = result.codex;
-    data = result.data;
-    committedJson = result.committedJson;
+
+    const map = result.codex.objectFromData(result.codex.getIndexedItem('map', {ikey:0})).content;
+    await trialdb.addMap(map);
+    // @ts-ignore
+    await trialdb.addCodex(result.codex.serialize());
+    await codexUpdate();
+    console.log(`#maps ${(await trialdb.mapCount())}`)
+    console.log(`#codices ${(await trialdb.codexCount())}`)
   }
 
   // $:{
@@ -72,6 +90,9 @@
     // window.getPixiApp = getPixiApp; /** test support hook */
     providers = Object.values(await presence.refreshProviders());
     console.log('mounted');
+    trialdb = new TrialContent({name: 'trial_content'});
+    await trialdb.create();
+    await codexUpdate();
   });
 </script>
 
@@ -107,8 +128,8 @@
   <ImagePlaceholder class="pb-20" />
   -->
 
-  {#if mapImg}
-    <PreviewMapCard {mapImg} mapScale={1.0}/>
+  {#if $mapImg}
+    <PreviewMapCard mapImg={$mapImg} mapScale={1.0}/>
   {/if}
   <CreateMapDrawer {onClickGenerate} bind:mapParams bind:hidden={createOn} />
   <BottomBar bind:createOn/>

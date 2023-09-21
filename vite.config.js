@@ -1,6 +1,7 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 // import { defineConfig } from 'vitest/config';
 import { defineConfig, searchForWorkspaceRoot } from 'vite';
+import { configDefaults } from "vitest/config";
 
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 // // only needed for npm run dev as it uses esbuild rather than rollup
@@ -26,6 +27,7 @@ export default defineConfig({
   // },
 
   test: {
+    exclude: [...configDefaults.exclude, "tests/**", "src/**/*.mocha.js"],
     include: ['src/**/*.{test,spec}.{js,ts}']
   },
   // https://medium.com/@ftaioli/using-node-js-builtin-modules-with-vite-6194737c2cd2
