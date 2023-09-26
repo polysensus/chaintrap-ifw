@@ -38,7 +38,9 @@
   // --- component helpers
 </script>
 {#if mapImg}
+<div class="flex justify-center">
 <SVGBox svg={mapImg} scale={mapScale}/>
+</div>
 {:else}
 <div class={innerPadding}>
 <p class="mb-3 font-normal text-gray-700 dark:text-gray-400 leading-tight">Generate a map, it will preview here</p>

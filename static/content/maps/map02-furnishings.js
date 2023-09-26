@@ -1,4 +1,4 @@
-{
+export const furnishings = {
   "map": {
     "name": "map02",
     "beta": "0x22ff48596d1d15a6f6d9175ddf978fc67909b4ba92421fa6eaceef1ebcf80c2476418d896ad039aeb8f2c0bb6f86b9a7af09c90ac1ae9789a96337fbaa132c09"
@@ -8,6 +8,7 @@
       "unique_name": "finish_exit",
       "labels": ["victory_condition"],
       "type": "finish_exit",
+      "choiceType": "finish_exit",
       "data": {
         "location": 8,
         "side": 0,

@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy, setContext, getContext } from 'svelte';
   import { writable } from 'svelte/store';
 
   import { Navbar, NavBrand, NavUl, NavLi } from 'flowbite-svelte';
@@ -8,46 +8,35 @@
   import CreateMapDrawer from '$lib/components/creator/CreateMapDrawer.svelte';
   import PreviewMapCard from '$lib/components/creator/PreviewMapCard.svelte';
   import BottomBar from '$lib/components/bottombar/BottomBar.svelte';
+  import FurnitureSummaryList from '$lib/components/furniture/FurnitureSummaryList.svelte';
 
   import { ChainPresence } from '$lib/chains/presence.js';
   import { all } from '$lib/chains/supportedproviders.js';
 
-  import { newMapCodex, hydrateCodex } from '$lib/maptool.js';
+  import { newMap } from '$lib/maptool.js';
   import { TrialContent } from '$lib/clientdata/trialcontent.js';
-  import { updated } from '$app/stores';
+  import { newMapStore } from '$lib/clientdata/storemap.js';
+  import { newFurnitureStore } from '$lib/clientdata/storefurnishings.js';
 
+  import FurnishLocationsContextStore from '$lib/components/FurnishLocationsContextStore.svelte';
+  import FurnishLocations from '$lib/components/furniture/FurnishLocations.svelte';
+
+  const  maptoolUrl = '/api/maptool';
   const presence = new ChainPresence({ networks: all });
+  let trialdb;
   let providers = [];
   let cfg;
   let mapParams = {};
-  let maptoolUrl = '/api/maptool';
-  let mapImg = writable('');
-  let codex = undefined;
   /** @type {string|undefined}*/
   let providerButtonText;
-  let createOn = false;
-  /** @type {TrialContent|undefined}*/
-  let trialdb = undefined;
+  let createDrawerClosed = true;
 
-  $: {
-
-    // TODO: password handling, check for password being used by iterating over
-    // keys and checking if any != null If there are passwords, assume only one
-    // and use the password from the current Create dungeon card. Not great, but
-    // will serve for now.
-    if(codex)
-      mapImg.set(codex.objectFromData(codex.getIndexedItem('svg', {ikey:0})).content ?? '');
-  }
-
-  async function codexUpdate() {
-    if (!trialdb) return;
-    const serialized = await trialdb.lastCodex();
-    if (!serialized) {
-      codex = undefined
-      return;
-    }
-    codex = await hydrateCodex(serialized);
-  }
+  /** @type {{connect:Function,subscribe:Function,add:Function}|undefined}*/
+  let map = newMapStore();
+  setContext('map', map);
+  /** @type {{connect:Function,subscribe:Function,add:Function,put:Function}|undefined}*/
+  let furnishings = newFurnitureStore();
+  setContext('furnishings', furnishings);
 
   async function onProviderSelect(cfg) {
     await presence.selectProvider(cfg.name);
@@ -61,24 +50,16 @@
     const { password } = mapParams;
     const params = { ...mapParams };
     delete params.password;
-    console.log('calling newMapCodex');
-    const result = await newMapCodex(params, {
+    console.log('calling newMap');
+    const result = await newMap(params, {
       maptoolUrl,
-      svg: true,
-      codexPassword: password,
-      codexGeneratePassword: false
+      svg: true
     });
     console.log(`ok: ${result.ok}`);
-    if(!(trialdb && result && result.ok && result.codex))
+    if(!(map && result && result.ok && result.map))
       return;
 
-    const map = result.codex.objectFromData(result.codex.getIndexedItem('map', {ikey:0})).content;
-    await trialdb.addMap(map);
-    // @ts-ignore
-    await trialdb.addCodex(result.codex.serialize());
-    await codexUpdate();
-    console.log(`#maps ${(await trialdb.mapCount())}`)
-    console.log(`#codices ${(await trialdb.codexCount())}`)
+    await map.add({...result.map, meta: {svg: result.svg, maptoolUrl}});
   }
 
   // $:{
@@ -87,13 +68,22 @@
   // }
 
   onMount(async () => {
-    // window.getPixiApp = getPixiApp; /** test support hook */
+
     providers = Object.values(await presence.refreshProviders());
-    console.log('mounted');
     trialdb = new TrialContent({name: 'trial_content'});
     await trialdb.create();
-    await codexUpdate();
+    await map.connect(trialdb);
+    await furnishings.connect(trialdb);
+
+    // force open the create drawer if there are no local maps
+    if (!$map)
+      createDrawerClosed = false;
   });
+  onDestroy(async () => {
+    if (trialdb)
+      trialdb.close();
+    trialdb = undefined;
+  })
 </script>
 
 <Navbar let:hidden let:toggle>
@@ -128,9 +118,12 @@
   <ImagePlaceholder class="pb-20" />
   -->
 
-  {#if $mapImg}
-    <PreviewMapCard mapImg={$mapImg} mapScale={1.0}/>
+  {#if $map?.meta?.svg}
+    <PreviewMapCard mapImg={$map.meta.svg} mapScale={1.0}/>
   {/if}
-  <CreateMapDrawer {onClickGenerate} bind:mapParams bind:hidden={createOn} />
-  <BottomBar bind:createOn/>
+  <CreateMapDrawer {onClickGenerate} bind:mapParams bind:hidden={createDrawerClosed} />
+  <FurnitureSummaryList furnishings={$furnishings}/>
+  <br/>
+  <FurnishLocationsContextStore />
+  <BottomBar bind:createOn={createDrawerClosed}/>
 </div>
