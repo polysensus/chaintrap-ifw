@@ -34,6 +34,7 @@ export function newMapStore() {
     add: async function (map) {
       const primaryKey = await db.mapAdd(map)
       map = {...map, name: `map${primaryKey}`};
+      console.log(`updating map ${map.name}`)
       update(() => map)
     },
   }

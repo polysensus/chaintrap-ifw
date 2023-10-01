@@ -11,6 +11,7 @@ import { HeartOutline, ThumbsDownOutline, SunOutline } from 'flowbite-svelte-ico
 // --- component properties
 /** @type {{map:{name:string,beta:string},items:{unique_name?:string,labels:string[],type:string,data:{location:number},meta:any}[]}|undefined}*/
 export let furnishings=undefined;
+export let map=undefined;
 
 let locations=[];
 let types=[];
@@ -19,6 +20,11 @@ $: {
   const collateTypes = {}
   const collate = {}
   for (const furn of (furnishings ?? [])) {
+
+    console.log(`furn beta ${furn.map.beta} map ${map?.vrf_inputs?.proof?.beta}`);
+    if (furn.map.beta !== map?.vrf_inputs?.proof?.beta)
+      continue;
+
     const loc = collate[furn.data.location] ?? {};
     const locType = loc[furn.type] ?? {};
     locType.count = (locType?.count ?? 0) + 1;

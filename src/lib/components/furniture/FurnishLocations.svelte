@@ -81,7 +81,9 @@ $: {
     location: selection,
     exitCounts: map?.model?.rooms[selection]?.corridors?.map((exits)=>exits?.length ?? 0),
     furnishings: (furnishings?? []).filter((item) => {
-      console.log(`considering furnishing for selection ${selection}`);
+      console.log(`considering furnishing for selection ${item.map.beta} ${selection}`);
+      if (item.map.beta !== map?.vrf_inputs?.proof?.beta)
+        return false;
       return item?.data?.location === selection
     })
   }
@@ -113,6 +115,7 @@ let next = () => {
 </script>
 {#if selected}
   <div class="flex justify-center mb-2">
+    <Badge border color="none">Map {map.name}</Badge>
     <Badge border color="none">Location {selection}</Badge>
   </div>
   {#if selected?.furnishings?.length > 0}

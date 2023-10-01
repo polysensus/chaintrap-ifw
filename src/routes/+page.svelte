@@ -19,7 +19,7 @@
   import { newFurnitureStore } from '$lib/clientdata/storefurnishings.js';
 
   import FurnishLocationsContextStore from '$lib/components/FurnishLocationsContextStore.svelte';
-  import FurnishLocations from '$lib/components/furniture/FurnishLocations.svelte';
+  import GenerateMap from '$lib/components/creator/GenerateMap.svelte';
 
   const  maptoolUrl = '/api/maptool';
   const presence = new ChainPresence({ networks: all });
@@ -29,7 +29,7 @@
   let mapParams = {};
   /** @type {string|undefined}*/
   let providerButtonText;
-  let createDrawerClosed = true;
+  let showFurnishingControl = true;
 
   /** @type {{connect:Function,subscribe:Function,add:Function}|undefined}*/
   let map = newMapStore();
@@ -77,7 +77,7 @@
 
     // force open the create drawer if there are no local maps
     if (!$map)
-      createDrawerClosed = false;
+      showFurnishingControl = false;
   });
   onDestroy(async () => {
     if (trialdb)
@@ -121,9 +121,13 @@
   {#if $map?.meta?.svg}
     <PreviewMapCard mapImg={$map.meta.svg} mapScale={1.0}/>
   {/if}
-  <CreateMapDrawer {onClickGenerate} bind:mapParams bind:hidden={createDrawerClosed} />
-  <FurnitureSummaryList furnishings={$furnishings}/>
+  <!--<CreateMapDrawer {onClickGenerate} bind:mapParams bind:hidden={createDrawerClosed} /> -->
+  {#if showFurnishingControl}
+  <FurnitureSummaryList map={$map} furnishings={$furnishings}/>
   <br/>
   <FurnishLocationsContextStore />
-  <BottomBar bind:createOn={createDrawerClosed}/>
+  {:else}
+  <GenerateMap {onClickGenerate} bind:params={mapParams} bind:hidden={showFurnishingControl} />
+  {/if}
+  <BottomBar bind:createOn={showFurnishingControl}/>
 </div>
