@@ -5,6 +5,10 @@ export class Errors {
   static DBNotReady = 'db not created (or busy creating)'
 }
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export class Collection {
   /**
    * Create a new context for working with a single IndexDB database with many
@@ -72,26 +76,111 @@ export class Collection {
       }
     });
   }
+  close() {
+    if (!this.db) return;
+    this.db.close();
+    this.db = undefined;
+  }
 
   /**
-   * 
+   * Count of all records in the store.
+   * Note: use indexedCount if you want to count records matching a specific
+   * index key.
    * @param {string} storeId 
    * @returns 
    */
   async count(storeId) {
     if(!this.db) throw new Error(Errors.DBNotReady);
-    return this.db.transaction(storeId, "readonly")
+    return await this.db.transaction(storeId, "readonly").store.count();
+  }
+
+  /**
+   * Count of records in index matching the value
+   * @param {string} storeId 
+   * @param {string} index 
+   * @param {any} value 
+   * @returns 
+   */
+  async indexedCount(storeId, index, value) {
+    if(!this.db) throw new Error(Errors.DBNotReady);
+    return await this.db.transaction(storeId, "readonly")
+      .store.index(index)
+      .count(IDBKeyRange.only(value))
+  }
+
+  /**
+   * Obtain the primary key for a uniquely indexed value
+   * Ie, for an autoincrement store with an additional unique index, get the
+   * auto increment key that was created for the record on insertion
+   * @param {string} storeId 
+   * @param {string} index 
+   * @param {any} value 
+   * @returns 
+   */
+  async indexedPrimaryKey(storeId, index, value) {
+    if(!this.db) throw new Error(Errors.DBNotReady);
+    return await this.db.transaction(storeId, 'readonly')
       .store
-      .count();
+      .index(index)
+      .openCursor(IDBKeyRange.only(value))
+        .then((c) => c?.primaryKey)
+  }
+
+  /**
+   * Delete the single item found by the index for the given value
+   * @param {string} storeId 
+   * @param {string} index 
+   * @param {any} value 
+   * @returns 
+   */
+  async indexedDel(storeId, index, value) {
+    if(!this.db) throw new Error(Errors.DBNotReady);
+    const key = await this.indexedPrimaryKey(storeId, index, value);
+    await this.db.transaction(storeId, 'readwrite')
+      .store.delete(key)
+  }
+  /**
+   * Put the single item found by the index for the given value
+   * @param {string} storeId 
+   * @param {string} index 
+   * @param {string} key 
+   * @param {any} value 
+   * @returns 
+   */
+  async indexedPut(storeId, index, key, value) {
+    if(!this.db) throw new Error(Errors.DBNotReady);
+    const primaryKey = await this.indexedPrimaryKey(storeId, index, key);
+    await this.db.transaction(storeId, 'readwrite')
+      .store.put(value, primaryKey)
+  }
+
+  async indexedGetAll(storeId, index) {
+    if(!this.db) throw new Error(Errors.DBNotReady);
+    return await this.db.transaction(storeId, "readonly")
+      .store.index(index)
+      .getAll();
   }
 
   /**
    * @param {string} storeId
    * @param {any} value 
+   * @param {{retryError?:string,retries?:number}} opts
    */
-  async add(storeId, value) {
+  async add(storeId, value, opts={}) {
     if(!this.db) throw new Error(Errors.DBNotReady);
-    this.db.add(storeId, value);
+    return await this.db.transaction(storeId, 'readwrite')
+      .store.add(value);
+  }
+
+  /**
+   * 
+   * @param {string} storeId 
+   * @param {any} key must be the primary key for the store
+   * @returns 
+   */
+  async delete(storeId, key) {
+    if(!this.db) throw new Error(Errors.DBNotReady);
+    return await this.db.transaction(storeId, 'readwrite').store.delete(key);
   }
 
   /**
@@ -102,11 +191,42 @@ export class Collection {
   async last(storeId) {
     if(!this.db) throw new Error(Errors.DBNotReady);
 
-    const tx = this.db .transaction(storeId, 'readonly');
-    return tx.store.openCursor(null, 'prev')
+    return await this.db.transaction(storeId, 'readonly')
+      .store.openCursor(null, 'prev')
       .then((c)=>{
         return c?.value
       })
+  }
+
+  /**
+   * Get the last primary key from the store, note that after deletions this is not the same as the count
+   * @param {string} storeId 
+   */
+
+  async lastID(storeId) {
+    if(!this.db) throw new Error(Errors.DBNotReady);
+
+    return await this.db.transaction(storeId, 'readonly')
+      .store.openCursor(null, 'prev')
+      .then((c)=>{
+        return c?.primaryKey
+      });
+  }
+
+  /**
+   * 
+   * @param {string} storeId 
+   * @param {string} index 
+   * @param {any} value 
+   * @returns 
+   */
+  async indexedLast(storeId, index, value) {
+    if(!this.db) throw new Error(Errors.DBNotReady);
+    const c = await this.db.transaction(storeId, 'readonly')
+      .store
+      .index(index)
+      .openCursor(IDBKeyRange.only(value), 'prev')
+    return c?.value ?? null;
   }
 
   /**
@@ -117,7 +237,7 @@ export class Collection {
    */
   async indexGet(storeId, index, key) {
     if(!this.db) throw new Error(Errors.DBNotReady);
-    return this.db.transaction([storeId], "readonly")
+    return await this.db.transaction([storeId], "readonly")
       .objectStore(storeId)
       .index(index).get(key);
   }

@@ -15,6 +15,85 @@ export async function hydrateCodex(serialized, options={}) {
   return BlobCodex.hydrate(serialized, [options?.codexPassword ?? null], hydrateOpts);
 }
 
+export class CreateMapResult {
+  constructor() {
+    this.ok = false;
+    /** @type {object|undefined} */
+    this.committed = undefined;
+    /** @type {object|undefined} */
+    this.map = undefined;
+    /** @type {string|undefined} */
+    this.svg = undefined;
+  }
+}
+
+/**
+ * @param {{
+ *  arena_size:number,
+ *  rooms:number,
+ *  tile_snap_size:number,
+ *  room_szmax:number,
+ *  room_szmin:number,
+ *  room_szratio:number,
+ *  min_separation_factor:number,
+ *  corridor_redundancy:number,
+ *  main_room_thresh:number,
+ *  tan_fudge:number,
+ *  model:string
+ * }} params
+ * @param {{
+ *  maptoolUrl:string,
+ *  svg:boolean?,
+ *  svgFilename:string?,
+ *  codexPassword:string?,
+ *  codexGeneratePassword:boolean?}} options
+ * @returns {Promise<CreateMapResult>}
+ */
+export async function newMap(params, options) {
+
+ const result = new CreateMapResult();
+
+  var req = {
+    credentials: 'omit',
+    method: 'POST',
+    mode: 'cors',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      gp: params
+    })
+  };
+
+  let baseUrl = options.maptoolUrl;
+  if (!baseUrl.endsWith('/')) baseUrl = baseUrl + '/';
+  let url = `${baseUrl}commit/`;
+  let resp = await fetch(url, req);
+  const committed = await resp.json();
+
+  req.body = JSON.stringify({
+    public_key: committed.public_key,
+    alpha: committed.alpha,
+    beta: committed.beta,
+    pi: committed.pi
+  });
+
+  url = `${baseUrl}generate/`;
+  // info(`generating for alpha string: ${committed.alpha}`);
+  resp = await fetch(url, req);
+  result.map = await resp.json();
+
+  if (options.svg) {
+    url = `${url}?svg=true`;
+    resp = await fetch(url, req);
+    const svg = await resp.text();
+    result.svg = svg;
+  }
+
+  result.ok = true;
+  return result;
+}
+
 
 /**
  * @param {{

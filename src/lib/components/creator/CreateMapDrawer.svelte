@@ -17,7 +17,7 @@
   };
 </script>
 
-<Drawer width="w-1/3" {backdrop} transitionType="fly" {transitionParams} bind:hidden id="sidebar10">
+<Drawer width="w-full" {backdrop} transitionType="fly" {transitionParams} bind:hidden id="sidebar10">
   <div class="flex items-center">
     <CloseButton on:click={() => (hidden = true)} class="mb-4 dark:text-white" />
   </div>
