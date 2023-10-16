@@ -89,9 +89,13 @@ async function validSelection(typeInfo) {
   if (!furniturePut)
     return;
 
+  let unique_name = furnishing.unique_name;
+  if (typeInfo.type === "finish_exit")
+    unique_name = "finish_exit";
+
   let data = {location:furnishing.data.location, ...typeInfo.data}
   const update = {
-    unique_name:furnishing.unique_name,
+    unique_name,
     map:furnishing.map,
     meta:furnishing.meta,
     ...typeInfo, data

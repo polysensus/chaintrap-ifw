@@ -21,7 +21,7 @@
   -->
   <BottomNavHeader classInner="min-w-full" innerClass="" slot="header">
     <BottomNavItem btnClass="col-start-2 min-w-full">
-      <CommandBox class="min-w-full border-2 rounded-lg"/>
+      <CommandBox on:onChange on:onNewline on:onPick  class="min-w-full border-2 rounded-lg"/>
     </BottomNavItem>
   </BottomNavHeader>
   <BottomNavItem btnName="Create" on:click={() => {createOn = !createOn}}>

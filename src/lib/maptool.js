@@ -1,4 +1,4 @@
-import { NameGenerator } from '@polysensus/chaintrap-arenastate';
+import { NameGenerator, CODEX_FURNITURE_INDEX } from '@polysensus/chaintrap-arenastate';
 import { BlobCodex } from '@polysensus/blobcodex';
 export const defaultSVGFilename = 'map.svg';
 
@@ -47,7 +47,7 @@ export class CreateMapResult {
  *  svgFilename:string?,
  *  codexPassword:string?,
  *  codexGeneratePassword:boolean?}} options
- * @returns {Promise<CreateMapResult>}
+ * @returns {Promise<CreateMapResult|undefined>}
  */
 export async function newMap(params, options) {
 
@@ -81,11 +81,19 @@ export async function newMap(params, options) {
   url = `${baseUrl}generate/`;
   // info(`generating for alpha string: ${committed.alpha}`);
   resp = await fetch(url, req);
+  if (resp.status !== 200) {
+    console.log(`bad response status: ${resp.statusText}`);
+    return undefined;
+  }
   result.map = await resp.json();
 
   if (options.svg) {
     url = `${url}?svg=true`;
     resp = await fetch(url, req);
+    if (resp.status !== 200) {
+      console.log(`bad response status: ${resp.statusText}`);
+      return undefined;
+    }
     const svg = await resp.text();
     result.svg = svg;
   }
@@ -94,131 +102,95 @@ export async function newMap(params, options) {
   return result;
 }
 
-
 /**
+ * @param {object} committed
  * @param {{
- *  arena_size:number,
- *  rooms:number,
- *  tile_snap_size:number,
- *  room_szmax:number,
- *  room_szmin:number,
- *  room_szratio:number,
- *  min_separation_factor:number,
- *  corridor_redundancy:number,
- *  main_room_thresh:number,
- *  tan_fudge:number,
- *  model:string
- * }} params
+ *  comment?:string,
+ *  name?:string,
+ *  model:any,
+ *  model_type:string,
+ *  vrf_inputs:{
+ *    alpha:string,
+ *    proof: {beta:string,pi:string,public_key:string},
+ *  secret:string, seed:string}}} map
  * @param {{
- *  maptoolUrl:string,
- *  svg:boolean?,
- *  svgFilename:string?,
+ *  unique_name: string,
+ *  labels: string[],
+ *  type: string,
+ *  choiceType: string,
+ *  data: {
+ *    location:number,
+ *    side?:number,
+ *    exit?:number
+ *    }
+ *  meta: object
+ * }[]} furnishings
+ * @param {string} svg
+ * @param {{
  *  codexPassword:string?,
+ *  svgFilename?:string,
  *  codexGeneratePassword:boolean?}} options
  * @returns {Promise<{
  *  ok:boolean,
- *  password:string|null,
- *  passwordGenerated:boolean,
- *  committedJson:string|undefined,
- *  mapJson:string|undefined,
- *  mapSVG:string|undefined,
+ *  passwordGenerated?:string,
  *  codex:BlobCodex|undefined,
  *  data:string|undefined
  * }>}
  */
-export async function newMapCodex(params, options) {
+export async function newTrialCodex(committed, map, furnishings, svg, options) {
   /** @type {{
    * ok:boolean,
-   *  password:string|null,
-   *  passwordGenerated:boolean,
-   *  committedJson:string|undefined,
-   *  map:object|undefined,
-   *  mapJson:string|undefined,
-   *  mapSVG:string|undefined,
+   *  passwordGenerated?:string|undefined,
    *  codex:BlobCodex|undefined,
    *  data:string|undefined
    * }} */
   const result = {
     ok: false,
-    password: null,
-    passwordGenerated: false,
-    committedJson: undefined,
-    map: undefined,
-    mapJson: undefined,
-    mapSVG: undefined,
+    passwordGenerated: undefined,
     codex: undefined,
     data: undefined
   };
 
   let password = options.codexPassword ?? null;
-  let passwordGenerated = password ? true : false;
   if (password === null && options.codexGeneratePassword) {
     const g = new NameGenerator({ fetch });
     password = (await g.getSurnames(2)).join('-');
-    result.passwordGenerated = true;
-    result.password = password;
+    result.passwordGenerated = password ?? undefined;
   }
 
   const codex = new BlobCodex();
   await codex.derivePasswordKeys([password]);
 
-  var req = {
-    credentials: 'omit',
-    method: 'POST',
-    mode: 'cors',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      gp: params
-    })
-  };
-
-  let baseUrl = options.maptoolUrl;
-  if (!baseUrl.endsWith('/')) baseUrl = baseUrl + '/';
-  let url = `${baseUrl}commit/`;
-  let resp = await fetch(url, req);
-  const committed = await resp.json();
-  result.committedJson = JSON.stringify(committed, null, '  ');
   codex.addItem(codex.dataFromObject(committed), {
     name: 'committed',
     content_type: 'application/json',
     encrypted: password !== null
   });
 
-  req.body = JSON.stringify({
-    public_key: committed.public_key,
-    alpha: committed.alpha,
-    beta: committed.beta,
-    pi: committed.pi
-  });
-
-  url = `${baseUrl}generate/`;
-  // info(`generating for alpha string: ${committed.alpha}`);
-  resp = await fetch(url, req);
-  const map = await resp.json();
-  const mapJson = JSON.stringify(map, null, '  ');
-  result.map = map;
-  result.mapJson = mapJson;
   codex.addItem(codex.dataFromObject(map), {
     name: 'map',
     content_type: 'application/json',
     encrypted: password !== null
   });
 
-  if (options.svg) {
-    url = `${url}?svg=true`;
-    resp = await fetch(url, req);
-    const svg = await resp.text();
-    result.mapSVG = svg;
-    codex.addItem(
-      codex.dataFromObject({
-        filename: options.svgFilename ?? defaultSVGFilename,
-        content: svg
-      }),
-      { name: 'svg', content_type: 'image/svg+xml' }
-    );
-  }
+  codex.addItem(codex.dataFromObject({
+    map:{
+      name: map.name,
+      beta: map.vrf_inputs.proof.beta
+    },
+    items: furnishings
+  }), {
+    name: CODEX_FURNITURE_INDEX,
+  });
+
+
+  codex.addItem(
+    codex.dataFromObject({
+      filename: options.svgFilename ?? defaultSVGFilename,
+      content: svg
+    }),
+    { name: 'svg', content_type: 'image/svg+xml' }
+  );
 
   result.data = JSON.stringify(codex.serialize(), null, ' ');
   result.codex = codex;

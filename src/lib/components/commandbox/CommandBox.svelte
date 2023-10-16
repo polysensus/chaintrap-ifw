@@ -29,4 +29,4 @@
   ]
 </script>
 
-<CompleteLine class={classes} {completions}></CompleteLine>
+<CompleteLine class={classes} on:onChange on:onNewline on:onPick {completions}></CompleteLine>

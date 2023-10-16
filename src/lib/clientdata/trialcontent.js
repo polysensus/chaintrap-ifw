@@ -1,6 +1,6 @@
 import {Collection, Errors as ColletionErrors} from './idb.js';
 
-export const CLIENTDATA_TRIALCONTENT_VERSION = 1;
+export const CLIENTDATA_TRIALCONTENT_VERSION = 2;
 export const CLIENTDATA_TRIALCONTENT_DBNAME = 'trial_content';
 
 export class Errors extends ColletionErrors {}
@@ -9,13 +9,10 @@ export class Stores {
   static Maps = 'Maps';
   static Codices = 'Codices';
   static Furniture = 'Furniture';
+  static TrialPosters = 'TrialPosters';
 }
 
 export class TrialContent extends Collection {
-  static Stores = {
-    Maps: 'Maps',
-    Codices: 'Codices'
-  }
 
   /**
    * @param {any} value 
@@ -37,7 +34,6 @@ export class TrialContent extends Collection {
     if (typeof opts?.version === 'undefined')
       opts.version = CLIENTDATA_TRIALCONTENT_VERSION;
     super(opts,
-      // {name:TrialContent.StoreId.Maps, keyPath: 'vrf_inputs.proof.beta'}
       {
         // auto-increment to get an insert order sortable stable id, but put a
         // unique index on beta so we don't get duplicates.
@@ -51,7 +47,12 @@ export class TrialContent extends Collection {
         ]
       },
       {
-        name:Stores.Codices, autoIncrement:true
+        name:Stores.Codices, autoIncrement:true,
+        indices: [
+          // Note: the unique cosntraint on unique_name permits an number of records to use undefined for this field value (leave it absent)
+          {name:'unique_name', keyPath: 'unique_name', unique:true},
+          {name:'labels', keyPath: 'labels'},
+        ]
       },
       {
         name:Stores.Furniture, autoIncrement:true,
@@ -62,9 +63,31 @@ export class TrialContent extends Collection {
           {name:'type', keyPath: 'type'},
           {name:'labels', keyPath: 'labels'},
         ]
+      },
+      {
+        name:Stores.TrialPosters, autoIncrement:true,
+        indices:[
+          {name:'unique_name', keyPath: 'unique_name', unique:true},
+          {name:'type', keyPath: 'type'},
+          {name:'labels', keyPath: 'labels'},
+        ]
       }
     );
     this.defaultWriteOpts = opts?.writeOpts ?? {retryError:'ConstraintError'};
+  }
+
+  /**
+   * @param {{unique_name?:string,labels:string[],base64:string,meta:{contentType:string,imgHeader:string,path?:string,prompt:string,openaiOptions?:object}}} item 
+   */
+  async trialPosterAdd(item) {
+    return await this.add(Stores.TrialPosters, item);
+  }
+
+  /**
+   * @returns {Promise<{unique_name?:string,labels:string[],base64:string,meta:{contentType:string,imgHeader:string,path?:string,prompt:string,openaiOptions?:object}}>} 
+   */
+  async trialPosterLast() {
+    return await this.last(Stores.TrialPosters)
   }
 
   /**
@@ -78,10 +101,7 @@ export class TrialContent extends Collection {
    *  meta: any}} item
    */
   async furnitureAdd(beta, item) {
-    const value = structuredClone(item);
-    // @ts-ignore
-    value.map = {beta};
-    this.add(Stores.Furniture, value);
+    return await this.add(Stores.Furniture, {...item,map:{beta}});
   }
 
   /**
@@ -164,6 +184,9 @@ export class TrialContent extends Collection {
   /**
    * 
    * @param {{
+   *  unique_name?:string,
+   *  labels?:string[],
+   *  codex: {
    *  ikeys:number[],
    *  salts:string[],
    *  index:{map:number[]},
@@ -172,14 +195,30 @@ export class TrialContent extends Collection {
    *    meta:{name:string,content_type:string,encrypted:boolean},
    *    blobs:{params:{ikey:number,iv:string, alg:string,tag:string},blob:string}[]
    *  }[]
-   * }} value 
+   * }}} value 
    * @returns 
    */
-  async addCodex(value) {
+  async codexAdd(value) {
     return this.add(Stores.Codices, value);
   }
 
-  async lastCodex() {
+  /**
+   * 
+   * @returns {Promise<{
+   *  unique_name:string,
+   *  labels?:string[],
+   *  codex: {
+   *  ikeys:number[],
+   *  salts:string[],
+   *  index:{map:number[]},
+   *  items:{
+   *    id:number, name:string,
+   *    meta:{name:string,content_type:string,encrypted:boolean},
+   *    blobs:{params:{ikey:number,iv:string, alg:string,tag:string},blob:string}[]
+   *  }[]
+   * }}>}
+   */
+  async codexLast() {
     if(!this.db) throw new Error(Errors.DBNotReady);
     return this.last(Stores.Codices)
   }

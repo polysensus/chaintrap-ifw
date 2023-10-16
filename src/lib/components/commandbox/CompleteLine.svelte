@@ -38,6 +38,12 @@
     dispatch("onChange", value);
   }
 
+  function handleKeyup(event) {
+    const code = event.keyCode ? event.keyCode : event.which;
+    if (code === 13)
+      dispatch("onComplete", value);
+  }
+
   /**
    * 
    * @param {import("@codemirror/autocomplete").CompletionContext} context

@@ -1,10 +1,24 @@
 <script>
+  import { createEventDispatcher } from 'svelte';
   import { Button, Textarea, Card } from 'flowbite-svelte';
   import { twMerge } from 'tailwind-merge';
   export let prompt = "A stylised icon representing a turn based random dungeon crawler game";
 
-  export let onClickGenerate = ({}) => {};
   export let img = undefined;
+
+  export let id = {
+    icon: 'GenerateGameIconCard-Icon',
+    clickGenerate: `GenerateGameIconCard-ClickGenerate`
+  }
+
+  const dispatch = createEventDispatcher();
+
+  function dispatchGenerateGameIcon() {
+    dispatch("onGenerateGameIcon", {
+      id: id.icon,
+      prompt
+    })
+  }
 
   // --- component state properties
   let horizontal = true;
@@ -18,7 +32,8 @@
   let innerPadding = 'max-w-lg'; // md
   // --- svelte bound variables
 </script>
-
+<div class="flex justify-center">
+<div class='max-w-lg'>
 <div class="card">
   <Card {img} href="." horizontal>
     <div class={innerPadding}>
@@ -30,9 +45,14 @@
       </p>
       <Textarea class="mb-4" bind:value={prompt}>
         <div slot="footer" class="flex items-center justify-between">
-          <Button on:click={() => onClickGenerate({ prompt })}>Generate</Button>
+          <Button
+            on:click={dispatchGenerateGameIcon}
+            id={id.clickGenerate}
+            >Generate</Button>
         </div>
       </Textarea>
     </div>
   </Card>
+</div>
+</div>
 </div>
