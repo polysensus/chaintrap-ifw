@@ -15,7 +15,8 @@
   import { ChainPresence } from '$lib/chains/presence.js';
   import { ArenaEvent, arenaConnect } from '@polysensus/chaintrap-arenastate';
   import {
-    Guardian, EventParser,
+    Guardian, Trialist,
+    EventParser, Dispatcher,
     GameMetadataReader,
     prepareTrialMetadata,
     prepareTrialInitArgs,
@@ -33,11 +34,13 @@
   import { newTrialPosterStore } from '$lib/clientdata/storetrialposter.js';
 
   import { newOwnerTrials } from '$lib/clientdata/storetrials/owned.js';
+  import { newRecentlyCreated } from '$lib/clientdata/storetrials/recent.js';
 
   /**
    * @type {{request:{href?:string,origin?:string}}}
    */
   export let data; // see +page.js:load
+  setContext('data', data);
 
   const maptoolUrl = '/api/maptool';
   const metadataURL = '/api/nftstorage/metadata';
@@ -45,6 +48,8 @@
   /** @type {ImageGeneratorOpenAI} */
   let imageGenerator;
   const presence = new ChainPresence({ networks: all });
+  setContext('presence', presence);
+
   let trialdb;
   let providers = [];
   let cfg;
@@ -70,18 +75,37 @@
     if (!$arena) return undefined;
     return new EventParser($arena, ArenaEvent.fromParsedEvent);
   });
-
   setContext('eventParser', eventParser);
-  let guardian = derived(eventParser, ($eventParser) => {
-    if (!$eventParser) return undefined;
 
-    return new Guardian($eventParser, {})
+  const eventDispatcher = derived(eventParser, ($eventParser, set) => {
+    if (!$eventParser)  {
+      set(undefined);
+      return undefined;
+    }
+    const dispatcher = new Dispatcher($eventParser);
+    set(dispatcher);
+    return () => dispatcher.stopListening()
+  });
+  setContext('eventDispatcher', eventDispatcher);
 
+  let guardian = derived(eventDispatcher, ($eventDispatcher) => {
+    if (!$eventDispatcher) return undefined;
+    return new Guardian($eventDispatcher.parser, {dispatcher:$eventDispatcher})
   });
   setContext('guardian', guardian);
 
+  let trialist = derived(eventDispatcher, ($eventDispatcher) => {
+    if (!$eventDispatcher) return undefined;
+    return new Trialist($eventDispatcher.parser, {dispatcher:$eventDispatcher})
+  });
+  setContext('trialist', trialist);
+
+
   let ownedGames = newOwnerTrials(eventParser);
   setContext('ownedGames', ownedGames);
+
+  const recentGames = newRecentlyCreated(eventParser);
+  setContext('recentGames', recentGames);
 
   // let trialist = writable(undefined);
   // setContext('trialist', trialist);
@@ -207,17 +231,6 @@
     return {tokenURI, ...(await $guardian.createGame(...args))}
   }
 
-  async function xx() {
-    // read it back from ipfs so we always put a consistent representation back
-    // in the index, regardless of whether we created it this section or found
-    // it another.
-    const reader = new GameMetadataReader({fetch, ipfsGatewayUrl:"https://ipfs.io/"});
-
-    const password = passwordGenerated ?? (options.codexPassword ?? null);
-    await reader.fetchTrialSetup(tokenURI, passsword);
-
-  }
-
   // $:{
   // 	if (presence?.providerSwitch?.available)
   // 		providers = Object.values(presence.providerSwitch.available)
@@ -284,6 +297,7 @@
   <ImagePlaceholder class="pb-20" />
   -->
   <p>Found {$ownedGames.length} games for current wallet</p>
+  <p>Found {$recentGames.length} games recently created</p>
 
   <GenerateGameIconCard img={trialPosterImg} on:onGenerateGameIcon={generateTrialPoster}/>
   {#if $map?.meta?.svg}
