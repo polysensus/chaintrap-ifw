@@ -25,10 +25,13 @@ export class ChainPresence {
   constructor(cfg) {
     this.cfg = cfg;
     this.providerCtx = undefined;
+    this.authenticated = writable(false);
+    this.providerName = writable(undefined);
 
     // provider selection
     this.providerSwitch = new Web3AuthModalProviderSwitch({
       prepared: (name, ctx) => {
+        // this.providerName.set(name);    
         console.log(`prepapred: ${name}`);
       },
       accountsChanged: async (name, ctx) => this.accountsChanged(name, ctx),
@@ -37,8 +40,6 @@ export class ChainPresence {
       authenticated: (authenticated) => this.authenticated.set(authenticated)
     });
 
-    this.authenticated = writable(false);
-    this.providerName = writable(undefined);
   }
   logout() {
     if (!get(this.authenticated)) return;

@@ -2,8 +2,9 @@
   import { BottomNav, BottomNavItem, BottomNavHeader, BottomNavHeaderItem} from 'flowbite-svelte';
   import { WandMagicSparklesOutline, UserCircleOutline } from 'flowbite-svelte-icons';
   import CommandBox from '$lib/components/commandbox/CommandBox.svelte';
-  export let createOn = false;
-  export let profileOn = false;
+  export let bottomNavCreateToggle = false;
+  export let bottomNavProvileToggle = false;
+  export let completions = []
 </script>
 <!--
 <Skeleton class="py-4" />
@@ -21,15 +22,15 @@
   -->
   <BottomNavHeader classInner="min-w-full" innerClass="" slot="header">
     <BottomNavItem btnClass="col-start-2 min-w-full">
-      <CommandBox on:onChange on:onNewline on:onPick  class="min-w-full border-2 rounded-lg"/>
+      <CommandBox on:onChange on:onNewline on:onPick  class="min-w-full border-2 rounded-lg" {completions}/>
     </BottomNavItem>
   </BottomNavHeader>
-  <BottomNavItem btnName="Create" on:click={() => {createOn = !createOn}}>
+  <BottomNavItem btnName="Create" on:click={() => {bottomNavCreateToggle = !bottomNavCreateToggle}}>
     <WandMagicSparklesOutline class="w-5 h-5 mb-1 text-gray-500 dark:text-gray-400 group-hover:text-primary-600 dark:group-hover:text-primary-500" />
   </BottomNavItem>
   <BottomNavItem btnName="Empty">
   </BottomNavItem>
-  <BottomNavItem btnName="Profile" on:click={() => {profileOn = !profileOn}}>
+  <BottomNavItem btnName="Profile" on:click={() => {bottomNavProvileToggle = !bottomNavProvileToggle}}>
     <UserCircleOutline class="w-5 h-5 mb-1 text-gray-500 dark:text-gray-400 group-hover:text-primary-600 dark:group-hover:text-primary-500" />
   </BottomNavItem>
 </BottomNav> 
