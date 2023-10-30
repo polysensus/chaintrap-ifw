@@ -1,7 +1,9 @@
 // This store maintains the set of games the guardian is actively listenting to
+// This includes all games that are not completed, including those that are not
+// started yet.
 import { ethers } from "ethers";
 import { derived } from "svelte/store";
-import { filterTrials, findTranscriptEvent, ABIName, CODEX_INDEXED_ITEMS } from "@polysensus/chaintrap-arenastate";
+import { isUndefined, filterTrials, findTranscriptEvent, ABIName, CODEX_INDEXED_ITEMS } from "@polysensus/chaintrap-arenastate";
 import {BlobCodex} from '@polysensus/blobcodex';
 
 export const defaultOptions = {
@@ -17,15 +19,12 @@ export const defaultOptions = {
  * @param {{incomplete?:boolean}} options 
  * @returns {Promise<number[]|import("ethers").BigNumber[]>}
  */
-async function findStarted(eventParser, limit, options={}) {
+async function findActive(eventParser, limit, options={}) {
   const owner = await eventParser?.contract?.signer?.getAddress();
   if (!owner) return [];
 
   return await filterTrials(eventParser, async (ev) =>{
       if (ev.subject !== owner) return false;
-      const started = await findTranscriptEvent(eventParser.contract, ev.gid, ABIName.TranscriptStarted, { unique: true});
-      if (!started)
-        return false;
       const found = await findTranscriptEvent(eventParser.contract, ev.gid, ABIName.TranscriptCompleted, { unique: true});
       if (found !== undefined)
         return false;
@@ -40,13 +39,16 @@ async function findCompleted(eventParser, limit, options={}) {
   return await filterTrials(eventParser, async (ev) =>{
       if (ev.subject !== owner) return false;
       const found = await findTranscriptEvent(eventParser.contract, ev.gid, ABIName.TranscriptCompleted, { unique: true});
-      return typeof found !== undefined;
+      return !isUndefined(found);
   }, limit);
 }
 
 async function startListener(gid, guardian, presence) {
+
   if (guardian.trialIsListening(gid))
     return;
+
+  console.log(`storetrials/active.js# starting gid: ${gid.toHexString()}`);
 
   const chain = presence?.providerSwitch?.current;
   if (!chain) {
@@ -75,7 +77,7 @@ async function startListener(gid, guardian, presence) {
   const codex = await BlobCodex.hydrate(
     serialized, [null], CODEX_INDEXED_ITEMS);
 
-  guardian.codexStartListening(codex, gid, {ikey:0}); // this is idempotent.
+  await guardian.codexStartListening(codex, gid, {ikey:0}); // this is idempotent.
   return true;
 }
 
@@ -87,11 +89,13 @@ export function newActiveTrials(guardian, presence, options={...defaultOptions})
 
     // Regular refresh
     const id = setInterval(async ()=>{
-      const completed = await findCompleted($guardian.eventParser, limit);
-      for (const gid of completed)
+      const completed = await findCompleted($guardian.eventParser, options.capacity);
+      for (const gid of completed) {
+        console.log(`storetrials/active.js# guardian.stopListening(${gid.toHexString()})`);
         $guardian.stopListening(gid);
-      for (const gid of (await findStarted($guardian.eventParser, options.capacity)))
-       await startListener(gid, $guardian, presence)
+      }
+      for (const gid of (await findActive($guardian.eventParser, options.capacity)))
+        await startListener(gid, $guardian, presence)
 
       const listening = Object.keys($guardian.trials).map((value)=>ethers.BigNumber.from(value))
       set(listening);

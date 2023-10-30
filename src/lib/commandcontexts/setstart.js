@@ -68,7 +68,7 @@ export class SetStartCommandCtx extends GuardianCommandCtx {
       return this.result;
     }
     this.starts[`${index}`] = {
-      trialist: this.roster.trialists[indexed[`${index}`]],
+      trialist: roster.trialists[indexed[`${index}`]],
       location
     }
     this.result = {

@@ -146,7 +146,7 @@
   -->
   <p>Found {$ownedGames.length} games for current wallet</p>
   <p>Found {$recentGames.length} games recently created</p>
-  <p>There are {$recentGames.length} games currently active</p>
+  <p>There are {$activeGames.length} games currently active</p>
   {#each $ownedGames as gid}
   <p>{gameInstance(gid)}</p>
   {/each}
