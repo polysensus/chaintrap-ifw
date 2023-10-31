@@ -1,12 +1,11 @@
 <script>
   // --- lib deps
   // --- external components
-  import { Button, CloseButton } from 'flowbite-svelte';
   import { twMerge } from 'tailwind-merge';
+  import * as Icon from "svelte-heros-v2";
   // --- components
   import NumberInput from '$lib/components/atoms/NumberInput.svelte';
   import StringInput from '$lib/components/atoms/StringInput.svelte';
-  import PasswordInput from '$lib/components/atoms/PasswordInput.svelte';
   // --- app lib
   // import { getLogger } from '$lib/log.js'
   // --- app stores
@@ -18,7 +17,9 @@
   export let onClickGenerate = ({}) => {};
   export let passwordPrompt = false;
 
-  export let hidden = true;
+  export let hidden = false;
+  export let btnClass="btn variant-ghost w-48 justify-between";
+  export let closeBtnClass="btn-icon variant-ghost";
 
   $: {
     params = {
@@ -79,7 +80,7 @@
 {#if !hidden}
 <div class="flex justify-center">
 <div class='max-w-lg'>
-  <CloseButton on:click={() => (hidden = true)} class="mb-4 dark:text-white" />
+  <button class={closeBtnClass} on:click={() => (hidden = true)}><Icon.XMark/></button>
   <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
     Create a dungeon
   </h5>
@@ -87,7 +88,7 @@
     Adjust these to influence how the dungeon is generated
   </p>
   <div class="grid gap-6 mb-6 md:grid-cols-2">
-  <Button color="alternative" on:click={() => {edditingGuidance = !!!edditingGuidance}}>{edditingGuidance ? "Hide Inputs" : "Adjust Inputs"}</Button>
+    <button class={btnClass} color="alternative" on:click={() => {edditingGuidance = !!!edditingGuidance}}>{edditingGuidance ? "Hide Inputs" : "Adjust Inputs"}</button>
   <p class='break-all'>arena_size={arena_size},rooms={rooms},tile_snap_size={tile_snap_size},room_szmax={room_szmax},room_szmin={room_szmin},room_szratio={room_szratio},min_separation_factor={min_separation_factor},corridor_redundancy={corridor_redundancy},main_room_thresh={main_room_thresh}</p>
   </div>
   {#if edditingGuidance}
@@ -111,14 +112,14 @@
   {/if}
   <div class="grid gap-6 mb-6 md:grid-cols-1">
     {#if passwordPrompt}
-    <PasswordInput
+    <StringInput
       id="chaintrap_map_password"
       label="Set a password to encrypt your map"
       bind:value={password}
       placeholder="Your password"
     />
     {/if}
-    <Button on:click={() => onClickGenerate({ ...params })}>Generate</Button>
+    <button class={btnClass} on:click={() => onClickGenerate({ ...params })}>Generate</button>
   </div>
 </div>
 </div>

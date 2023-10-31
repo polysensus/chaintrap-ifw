@@ -7,7 +7,7 @@
 import { onMount, setContext, getContext, onDestroy } from 'svelte'
 // --- external components
 // --- components
-import BottomBar from '$lib/components/bottombar/BottomBar.svelte';
+import CommandBox from './commandbox/CommandBox.svelte';
 // --- app lib
 import { getLogger } from '$lib/log.js';
 import { CodeMirrorCommandSet } from '$lib/console/codemirror.js';
@@ -71,33 +71,6 @@ commands.append(
   startGameCmd.exec.bind(startGameCmd)
 );
 
-
-/**
-   let completions = [
-    snippetCompletion(
-      'create game for \{${count}\} players',
-        {label: "create game", type: "keyword", custom: "xxx"}),
-    snippetCompletion(
-      'select game \{${number}\}',
-        {label: "select game", type: "keyword"}),
-    snippetCompletion(
-      'join game \{${number}\} as \{${nickname}\}',
-        {label: "join game", type: "keyword"}),
-    snippetCompletion(
-      'start game',
-        {label: "start game", type: "keyword"}),
-
-    snippetCompletion(
-      'use exit \{${number}\} on the \{${side}\}',
-        {label: "use exit", type: "keyword"}),
-
-    snippetCompletion(
-      'open chest \{${number}\}',
-        {label: "open chest", type: "keyword"})
-
-  ]
- */
-
 // --- svelte bound variables
 // let instance = undefined
 // --- svelte lifecycle callbacks
@@ -130,27 +103,11 @@ function onComplete(value) {
   });
 }
 
-// --- command handlers
-/**
- * 
- * @param {{codexPassword?:string,networkEIP1559?:boolean}} options
- */
-async function cmdCreateTrial(phrase, options={}) {
-
-
-  const c = new Completion(
-    {phrase: 'create game for \{${count}\} players', prefix:'create game'},
-    new NumberMatcher("count")
-  );
-  const ok = c.match(phrase);
-  if (!ok) {
-    console.log(`failed to match phrase: ${phrase}`);
-    return;
-  }
-  return await createGameCmd.exec(c.result);
-}
-
 </script>
+<!--
+
 <BottomBar completions={commands.snippetCompletions()} on:onNewline={onComplete} bind:bottomNavCreateToggle={showMapGenerator}/>
+-->
+<CommandBox completions={commands.snippetCompletions()} on:onChange on:onPick on:onNewline={onComplete} class="min-w-full border-2 rounded-lg"/>
 <style>
 </style>

@@ -1,6 +1,4 @@
 <script>
-  import { Input, Label } from 'flowbite-svelte';
-
   /** @type string*/
   export let id;
   /** @type string*/
@@ -10,10 +8,10 @@
   /** @type string*/
   export let placeholder = '0.0';
   /** @type string*/
-  export let labelClass = 'mb-2';
+  export let labelClass = 'label';
 </script>
 
 <div>
-  <Label for={id} class={labelClass}>{label}</Label>
-  <Input type="number" {id} {placeholder} required bind:value />
+  <label for={id} class={labelClass}><span>{label}</span></label>
+  <input type="number" {id} {placeholder} required {value} />
 </div>

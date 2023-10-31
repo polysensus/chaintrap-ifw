@@ -1,7 +1,6 @@
 <script>
   // --- lib deps
   // --- external components
-  import { Button, Card } from 'flowbite-svelte';
   import { twMerge } from 'tailwind-merge';
   // --- components
   import SVGBox from '$lib/components/atoms/SVGBox.svelte';
