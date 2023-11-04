@@ -84,6 +84,16 @@
   on:step={onStepHandler} on:complete={onCompleteHandler} class={stepperClass}>
 
 	<Step class={stepClass} regionContent={stepContentClass}>
+		<svelte:fragment slot="header">Create a trial poster</svelte:fragment>
+    <GenerateGameIconCard on:onGenerateGameIcon={generateTrialPoster}/>
+	</Step>
+
+	<Step class={stepClass} regionContent={stepContentClass}>
+		<svelte:fragment slot="header">Generate or choose a dungeon</svelte:fragment>
+    <PageMapGenerator hidden={false}/>
+	</Step>
+
+	<Step class={stepClass} regionContent={stepContentClass}>
 		<svelte:fragment slot="header">Place dungeon features</svelte:fragment>
     <p class="text-gray-700 dark:text-gray-400">You must place at least one finish exit</p>
     {#if $map?.meta?.svg}
@@ -94,14 +104,6 @@
     {/if}
 	</Step>
 
-	<Step class={stepClass} regionContent={stepContentClass}>
-		<svelte:fragment slot="header">Create a trial poster</svelte:fragment>
-    <GenerateGameIconCard on:onGenerateGameIcon={generateTrialPoster}/>
-	</Step>
-	<Step class={stepClass} regionContent={stepContentClass}>
-		<svelte:fragment slot="header">Generate or choose a dungeon</svelte:fragment>
-    <PageMapGenerator hidden={false}/>
-	</Step>
 	<Step class={stepClass} regionContent={stepContentClass}>
 		<svelte:fragment slot="header">Mint your dungeon trial</svelte:fragment>
     <input class="input" title="Max Trialists" type="number" placeholder="Set the maximum number of trialists" />
