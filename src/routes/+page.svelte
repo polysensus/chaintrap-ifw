@@ -10,6 +10,7 @@
   import PageGameIconGenerator from '$lib/components/creator/PageGameIconGenerator.svelte';
   import PreviewMapCard from '$lib/components/creator/PreviewMapCard.svelte';
   import PageMapGenerator from '$lib/components/creator/PageMapGenerator.svelte';
+  import FurnishLocationsContextStore from '$lib/components/FurnishLocationsContextStore.svelte';
   import PageGameCommands from '$lib/components/PageGameCommands.svelte';
 
   // application imports
@@ -122,6 +123,7 @@
     <PageGameIconGenerator/>
     {#if $map?.meta?.svg}
       <PreviewMapCard mapImg={$map.meta.svg} mapScale={0.5}/>
+      <FurnishLocationsContextStore />
     {/if}
     <PageMapGenerator hidden={false}/>
     <PageGameCommands />

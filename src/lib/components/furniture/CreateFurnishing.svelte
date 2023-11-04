@@ -106,8 +106,8 @@ async function validSelection(typeInfo) {
 // --- component helpers
 </script>
 
-<ButtonGroup>
-<SpeedDial bind:open defaultClass="flex" pill={false} tooltip="none">
+<ButtonGroup outline>
+<SpeedDial outline bind:open defaultClass="flex" pill={false} tooltip="none" name="">
   <div slot="icon">
     {selectedChoiceType ?? 'undefined'}
   </div>
