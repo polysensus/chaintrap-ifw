@@ -1,6 +1,5 @@
 <script>
   import * as Icon from 'svelte-heros-v2';
-  import { Button } from 'flowbite-svelte';
 
   /**
    * @type string
@@ -16,14 +15,14 @@
   // --- component state properties
 </script>
 
-<Button on:click={onClick} class="p-2 {width}" outline={true}>
+<button on:click={onClick} class="p-2 {width} variant-ringed">
   {#if text}
     <div class="p-2">{text}</div>
   {/if}
   <div class="p-2">
     <Icon.Signal size="20" />
   </div>
-</Button>
+</button>
 
 <style>
 </style>

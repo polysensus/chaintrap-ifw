@@ -53,8 +53,8 @@ $: sideName = sideNumbers[data.side]
 }
 </script>
 
-<ButtonGroup>
-<SpeedDial bind:open defaultClass="flex" pill={false} tooltip="none">
+<ButtonGroup outline>
+<SpeedDial outline bind:open defaultClass="flex" pill={false} tooltip="none" name="">
   <div slot="icon">
     {sideName}
   </div>

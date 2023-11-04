@@ -43,14 +43,18 @@ let selected = {
   props: { }
 }
 
-$:{
+$:selected = updateSelected(selectedChoiceType)
+
+function updateSelected(selectedChoiceType) {
+  let selected = undefined;
+
   for (const c of furnitureComponents) {
     if (c.choiceType !== selectedChoiceType)
       continue
 
-    selected.furnitureType = c;
-    selected.props = {
-      ...c.props,
+    selected = {
+      furnitureType: c,
+      props: {...c.props}
     }
     switch (selected.furnitureType.choiceType) {
       case "open_chest": {
@@ -60,6 +64,7 @@ $:{
     }
     break;
   }
+  return selected;
 }
 
 // --- component state properties
@@ -77,7 +82,9 @@ let open = false;
  * @param {{type:string,choiceType:string,labels:string[]}} item 
  */
 function onClickFurnitureType(type) {
-  selectedChoiceType = type;
+  selected = updateSelected(type)
+  if (selected)
+    selectedChoiceType = type;
 }
 
 /**
@@ -89,21 +96,26 @@ async function validSelection(typeInfo) {
   if (!furniturePut)
     return;
 
+  let unique_name = furnishing.unique_name;
+  if (typeInfo.type === "finish_exit")
+    unique_name = "finish_exit";
+
   let data = {location:furnishing.data.location, ...typeInfo.data}
   const update = {
-    unique_name:furnishing.unique_name,
+    unique_name,
     map:furnishing.map,
     meta:furnishing.meta,
     ...typeInfo, data
   }
+  console.log(`--- furniturePut: ${update.unique_name}`);
   await furniturePut(update);
 }
 
 // --- component helpers
 </script>
 
-<ButtonGroup>
-<SpeedDial bind:open defaultClass="flex" pill={false} tooltip="none">
+<ButtonGroup outline>
+<SpeedDial outline bind:open defaultClass="flex" pill={false} tooltip="none" name="">
   <div slot="icon">
     {selectedChoiceType ?? 'undefined'}
   </div>

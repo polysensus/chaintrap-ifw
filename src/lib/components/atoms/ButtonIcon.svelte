@@ -1,0 +1,1 @@
+<button class='btn-icon variant-ghost' on:click><slot/></button>

@@ -1,36 +1,44 @@
+<!-- YOU CAN DELETE EVERYTHING IN THIS PAGE -->
 <script>
+  // framework imports
   import { onMount, onDestroy, setContext, getContext } from 'svelte';
-  import { writable } from 'svelte/store';
+  import { get, writable, derived } from 'svelte/store';
 
-  import { Navbar, NavBrand, NavUl, NavLi } from 'flowbite-svelte';
+  // framework components
 
-  import ProvidersDropdown from '$lib/components/presence/ProvidersDropdown.svelte';
-  import CreateMapDrawer from '$lib/components/creator/CreateMapDrawer.svelte';
+  // application components
+  import PageGameIconGenerator from '$lib/components/creator/PageGameIconGenerator.svelte';
   import PreviewMapCard from '$lib/components/creator/PreviewMapCard.svelte';
-  import BottomBar from '$lib/components/bottombar/BottomBar.svelte';
-  import FurnitureSummaryList from '$lib/components/furniture/FurnitureSummaryList.svelte';
+  import PageMapGenerator from '$lib/components/creator/PageMapGenerator.svelte';
+  import FurnishLocationsContextStore from '$lib/components/FurnishLocationsContextStore.svelte';
+  import TrialCreateStepper from '$lib/components/trials/TrialCreateStepper.svelte';
+  import PageGameCommands from '$lib/components/PageGameCommands.svelte';
 
-  import { ChainPresence } from '$lib/chains/presence.js';
-  import { all } from '$lib/chains/supportedproviders.js';
-
-  import { newMap } from '$lib/maptool.js';
+  // application imports
   import { TrialContent } from '$lib/clientdata/trialcontent.js';
+  import {
+    Guardian, Trialist,
+    EventParser, Dispatcher, ArenaEvent,
+    gameInstance
+  } from '@polysensus/chaintrap-arenastate';
+
+  // -- dungeon creation local state stores
   import { newMapStore } from '$lib/clientdata/storemap.js';
   import { newFurnitureStore } from '$lib/clientdata/storefurnishings.js';
+  import { newTrialPosterStore } from '$lib/clientdata/storetrialposter.js';
 
-  import FurnishLocationsContextStore from '$lib/components/FurnishLocationsContextStore.svelte';
-  import GenerateMap from '$lib/components/creator/GenerateMap.svelte';
+  import { newOwnerTrials } from '$lib/clientdata/storetrials/owned.js';
+  import { newRecentlyCreated } from '$lib/clientdata/storetrials/recent.js';
+  import { newActiveTrials } from '$lib/clientdata/storetrials/active.js';
 
-  const  maptoolUrl = '/api/maptool';
-  const presence = new ChainPresence({ networks: all });
-  let trialdb;
-  let providers = [];
-  let cfg;
-  let mapParams = {};
-  /** @type {string|undefined}*/
-  let providerButtonText;
-  let showFurnishingControl = true;
+  // contexts
+  /**
+   * @type {{request:{href?:string,origin?:string}}}
+   */
+  export let data; // see +page.js:load
+  setContext('data', data);
 
+  // --- stores for dungeon creation
   /** @type {{connect:Function,subscribe:Function,add:Function}|undefined}*/
   let map = newMapStore();
   setContext('map', map);
@@ -38,42 +46,65 @@
   let furnishings = newFurnitureStore();
   setContext('furnishings', furnishings);
 
-  async function onProviderSelect(cfg) {
-    await presence.selectProvider(cfg.name);
-  }
-  async function onProviderDeselect(cfg) {
-    presence.logout();
-  }
+  let trialPoster = newTrialPosterStore();
+  setContext('trialPoster', trialPoster);
 
-  async function onClickGenerate() {
-    console.log(`${JSON.stringify(mapParams)}`);
-    const { password } = mapParams;
-    const params = { ...mapParams };
-    delete params.password;
-    console.log('calling newMap');
-    const result = await newMap(params, {
-      maptoolUrl,
-      svg: true
-    });
-    console.log(`ok: ${result.ok}`);
-    if(!(map && result && result.ok && result.map))
-      return;
+  // --- stores for participation
+  const arena = getContext('arena');
 
-    await map.add({...result.map, meta: {svg: result.svg, maptoolUrl}});
-  }
+  let eventParser = derived(arena, ($arena)=> {
+    if (!$arena) return undefined;
+    return new EventParser($arena, ArenaEvent.fromParsedEvent);
+  });
+  setContext('eventParser', eventParser);
 
-  // $:{
-  // 	if (presence?.providerSwitch?.available)
-  // 		providers = Object.values(presence.providerSwitch.available)
-  // }
+  const eventDispatcher = derived(eventParser, ($eventParser, set) => {
+    if (!$eventParser)  {
+      set(undefined);
+      return undefined;
+    }
+    const dispatcher = new Dispatcher($eventParser);
+    set(dispatcher);
+    return () => dispatcher.stopListening()
+  });
+  setContext('eventDispatcher', eventDispatcher);
+
+  let guardian = derived(eventDispatcher, ($eventDispatcher) => {
+    if (!$eventDispatcher) return undefined;
+    return new Guardian($eventDispatcher.parser, {dispatcher:$eventDispatcher})
+  });
+  setContext('guardian', guardian);
+
+  let trialist = derived(eventDispatcher, ($eventDispatcher) => {
+    if (!$eventDispatcher) return undefined;
+    return new Trialist($eventDispatcher.parser, {dispatcher:$eventDispatcher})
+  });
+  setContext('trialist', trialist);
+
+  let ownedGames = newOwnerTrials(eventParser);
+  setContext('ownedGames', ownedGames);
+
+  const recentGames = newRecentlyCreated(eventParser);
+  setContext('recentGames', recentGames);
+
+  const presence = getContext('presence');
+
+  const activeGames = newActiveTrials(guardian, presence);
+  setContext('activeGames');
+
+
+  // state vars
+
+  let trialdb;
 
   onMount(async () => {
 
-    providers = Object.values(await presence.refreshProviders());
     trialdb = new TrialContent({name: 'trial_content'});
+
     await trialdb.create();
     await map.connect(trialdb);
     await furnishings.connect(trialdb);
+    await trialPoster.connect(trialdb);
 
     // force open the create drawer if there are no local maps
     if (!$map)
@@ -84,50 +115,27 @@
       trialdb.close();
     trialdb = undefined;
   })
+
 </script>
-
-<Navbar let:hidden let:toggle>
-  <NavBrand href="/">
-    <img src="/apple-icon-120x120.png" class="mr-3 h-6 sm:h-9" alt="Polysensus Logo" />
-    <span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white"
-      ><a href="https://www.polysensus.com" target="_blank">Polysensus</a></span
-    >
-  </NavBrand>
-  <!--<NavHamburger on:click={toggle} /> -->
-  <NavUl {hidden} >
-    <!--<NavLi href="/contact"><a href="https://www.polysensus.com" target="_blank" >Contact</a></NavLi> -->
-    <NavLi id="providers-toggle" class="cursor-pointer">
-      {providerButtonText}<!--<ChevronDownOutline class="w-3 h-3 ml-2 text-primary-800 dark:text-white inline" /> -->
-    </NavLi>
-    <!--
-      onSelect={onProviderSelect},
-      onDeselect={onProviderDeselect},
-    -->
-    <ProvidersDropdown width={"w-80"}
-      {providers}
-      onSelect={onProviderSelect}
-      onDeselect={onProviderDeselect}
-      bind:buttonText={providerButtonText}
-      bind:cfg />
-  </NavUl>
-</Navbar>
-
-<div>
-  <!--
-  <Skeleton class="py-4" />
-  <ImagePlaceholder class="pb-20" />
-  -->
-
-  {#if $map?.meta?.svg}
-    <PreviewMapCard mapImg={$map.meta.svg} mapScale={1.0}/>
-  {/if}
-  <!--<CreateMapDrawer {onClickGenerate} bind:mapParams bind:hidden={createDrawerClosed} /> -->
-  {#if showFurnishingControl}
-  <FurnitureSummaryList map={$map} furnishings={$furnishings}/>
-  <br/>
-  <FurnishLocationsContextStore />
-  {:else}
-  <GenerateMap {onClickGenerate} bind:params={mapParams} bind:hidden={showFurnishingControl} />
-  {/if}
-  <BottomBar bind:createOn={showFurnishingControl}/>
+<div class="container h-full mx-auto flex justify-center">
+	<div class="space-y-2 text-center flex flex-col">
+		<h2 class="h2">Welcome to Chaintrap.</h2>
+    <TrialCreateStepper />
+    <PageGameCommands />
+	</div>
 </div>
+
+<!--
+<div class="container h-full mx-auto flex justify-center items-center">
+	<div class="space-y-10 text-center flex flex-col items-center">
+		<h2 class="h2">Welcome to Chaintrap.</h2>
+    <PageGameIconGenerator/>
+    {#if $map?.meta?.svg}
+      <PreviewMapCard mapImg={$map.meta.svg} mapScale={0.5}/>
+      <FurnishLocationsContextStore />
+    {/if}
+    <PageMapGenerator hidden={false}/>
+	</div>
+  <br/>
+</div>
+    -->

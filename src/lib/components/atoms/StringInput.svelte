@@ -18,10 +18,10 @@
 </script>
 
 <div>
-  <Label for={id} class={labelClass}>{label}</Label>
+  <label for={id} class={labelClass}><span>{label}</span></label>
   {#if !readonly}
-    <Input type="text" {id} {placeholder} required bind:value />
+    <input type="text" {id} {placeholder} required {value} />
   {:else}
-    <Input type="text" {id} {placeholder} readonly bind:value />
+    <input type="text" {id} {placeholder} readonly {value} />
   {/if}
 </div>

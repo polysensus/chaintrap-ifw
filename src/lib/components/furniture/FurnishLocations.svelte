@@ -4,10 +4,12 @@
 // --- framework
 import { onMount, setContext, getContext, onDestroy } from 'svelte'
 // --- external components
-import { Button, Badge  } from 'flowbite-svelte';
-import { CloseOutline, PlusOutline  } from 'flowbite-svelte-icons';
+import * as Icon from "svelte-heros-v2";
 // --- components
-import FurnishLocationsPager from './FurnishLocationsPager.svelte';
+import Badge from '$lib/components/atoms/Badge.svelte';
+import ButtonIcon from '$lib/components/atoms/ButtonIcon.svelte';
+import ButtonIconAdd from '$lib/components/atoms/ButtonIconAdd.svelte';
+import FurnishLocationsPager2 from './FurnishLocationsPager2.svelte';
 import CreateFurnishing from './CreateFurnishing.svelte';
 // --- app lib
 import { getLogger } from '$lib/log.js'
@@ -47,8 +49,6 @@ export let furniturePut  = async function (location) {
 /** @type {{name:number,corridors:number[][], inter:boolean}[]|undefined}} */
 let rooms = [];
 let selected = undefined;
-let btnColorAdd = 'red';
-let btnColorDel = 'light';
 
 $: {
   const updated = [];
@@ -62,32 +62,21 @@ $: {
   }
   rooms = updated;
 
-  // deal with degenerate cases.
-  if (rooms.length < pageSize) {
-    pageStart = 0;
-    pageEnd = rooms.length === 0 ? 0 : rooms.length - 1;
-  } else if (pageStart < 0) {
-    pageStart = 0;
-    pageEnd = pageSize;
-  } else if (pageEnd >= rooms.length) {
-    pageEnd = rooms.length === 0 ? 0 : rooms.length - 1;
-    pageStart = pageEnd - pageSize;
-  }
-
   if (typeof selection === 'undefined')
-    selection =  pageStart;
+    selection =  0;
 
   selected = {
     location: selection,
     exitCounts: map?.model?.rooms[selection]?.corridors?.map((exits)=>exits?.length ?? 0),
     furnishings: (furnishings?? []).filter((item) => {
-      console.log(`considering furnishing for selection ${item.map.beta} ${selection}`);
+      // console.log(`considering furnishing for selection ${item.map.beta} ${selection}`);
       if (item.map.beta !== map?.vrf_inputs?.proof?.beta)
         return false;
       return item?.data?.location === selection
     })
   }
-  console.log(`updated: #furnishings ${selected.furnishings.length} for location ${selection}`);
+  // console.log(`updated: #furnishings ${selected.furnishings.length} for location ${selection}`);
+  // console.log(`updated: #rooms ${rooms.length}`);
 }
 
 // --- svelte bound variables
@@ -111,32 +100,37 @@ let next = () => {
   pageEnd += pageSize;
   pageStart += pageSize;
 }
+function onPage(a) {
+  console.log(`FurnishLocations# onPage: ${a.detail}`);
+}
 
 </script>
+<div class="mt-2">
+  <div class="flex justify-center mb-2">
+    <FurnishLocationsPager2 on:page={onPage} source={rooms} bind:room={selection}/>
+  </div>
 {#if selected}
   <div class="flex justify-center mb-2">
-    <Badge border color="none">Map {map.name}</Badge>
-    <Badge border color="none">Location {selection}</Badge>
+    <Badge>Map {map.name}</Badge>
+    <Badge>Location {selection}</Badge>
   </div>
   {#if selected?.furnishings?.length > 0}
   {#each (selected.furnishings) as furn, i}
   <div class="flex justify-center space-x-4 mb-1">
   {#if i===0}
-  <Button on:click={async () => await furnitureAdd(selected)} color={btnColorAdd} outline pill class="!p-2"><PlusOutline class="w-2 h-2"></PlusOutline></Button>
+  <ButtonIconAdd on:click={async () => await furnitureAdd(selected)}><Icon.Plus variation='outline'/></ButtonIconAdd>
   {/if}
   <CreateFurnishing {furniturePut} selectedChoiceType={furn.choiceType} exitCounts={selected.exitCounts} furnishing={furn}></CreateFurnishing>
-  <Button on:click={async () => await furnitureDel(furn)} color={btnColorDel} outline pill class="!p-2"><CloseOutline class="w-2 h-2"></CloseOutline></Button>
+  <ButtonIcon on:click={async () => await furnitureDel(furn)}><Icon.XMark variation='outline'/></ButtonIcon>
   </div>
   {/each}
   {:else}
   <div class="flex justify-center space-x-4">
-  <Button on:click={async () => await furnitureAdd(selected)} color={btnColorAdd} outline pill class="!p-2"><PlusOutline class="w-2 h-2"></PlusOutline></Button>
-  <p>Click to add a furnishing</p>
+  <ButtonIconAdd on:click={async () => await furnitureAdd(selected)}><Icon.Plus variation='outline'/></ButtonIconAdd>
+  <p class="text-gray-700 dark:text-gray-400">Click to add a furnishing</p>
   </div>
   {/if}
 {/if}
-<div class="mt-2">
-<FurnishLocationsPager {next} {previous} {select} subject={'rooms'} pages={rooms?.slice(pageStart, pageEnd)} total={rooms.length}/>
 </div>
 <style>
 </style>

@@ -55,24 +55,47 @@ export class Collection {
     this.creating = true;
 
     const collections = this;
+    console.log(`CREATING Index DB VERSION ${this.version}`);
 
     this.db = await openDB(this.name, this.version, {
-      upgrade(db) {
+      upgrade(db, oldVersion, newVersion, transaction) {
+        // Notice: this approach works for new tables and new indices. It does not re-create or migrate existing tables or indices
+        console.log(`schema upgrade from ${oldVersion} to ${newVersion}`);
         for (const [storeName, s] of Object.entries(collections.storeOpts)) {
-          // Note we are deleting here, but only if we are creating or
-          // upgrading. Create a copy so the contents of storeOpts left on this
-          // are always the same.
           const  storeOpts = structuredClone(s);
           const indexOpts = storeOpts.indices ?? [];
           delete storeOpts.indices;
-          const store = db.createObjectStore(storeName, storeOpts);
+
+          let store;
+          try {
+            store = transaction.objectStore(storeName)
+          } catch (err) {
+            if (err.name === 'NotFoundError') {
+              console.log(`creating store ${storeName}`);
+              store =  db.createObjectStore(storeName, storeOpts);
+            }
+            else 
+              throw err;
+          } 
+
+          // const store = db.createObjectStore(storeName, storeOpts);
           for (const o of indexOpts) {
             const {name, keyPath} = o;
             delete o.name;
             delete o.keyPath;
-            const index = store.createIndex(name, keyPath, o);
+            try {
+              store.index(name);
+            } catch (err) {
+              if (err.name === 'NotFoundError') {
+                console.log(`creating index ${name} for store ${storeName}`);
+                store.createIndex(name, keyPath, o);
+              }
+              else 
+                throw err;
+            }
           }
         }
+        //  Any migrations or changes to indices should be handled here
       }
     });
   }
