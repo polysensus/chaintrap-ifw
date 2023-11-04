@@ -66,7 +66,7 @@ $: {
 <div class="flex justify-center">
 <Listgroup active class="w-96">
 {#each locations as loc}
-<ListgroupItem class="flex justify-center text-base font-semibold gap-2">
+<ListgroupItem class="flex justify-center gap-2">
   <Badge>Location {loc.location}</Badge>
   {#each types as type}
   {#if (loc[type]?.icon && loc[type]?.count)}

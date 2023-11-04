@@ -69,14 +69,14 @@ $: {
     location: selection,
     exitCounts: map?.model?.rooms[selection]?.corridors?.map((exits)=>exits?.length ?? 0),
     furnishings: (furnishings?? []).filter((item) => {
-      console.log(`considering furnishing for selection ${item.map.beta} ${selection}`);
+      // console.log(`considering furnishing for selection ${item.map.beta} ${selection}`);
       if (item.map.beta !== map?.vrf_inputs?.proof?.beta)
         return false;
       return item?.data?.location === selection
     })
   }
-  console.log(`updated: #furnishings ${selected.furnishings.length} for location ${selection}`);
-  console.log(`updated: #rooms ${rooms.length}`);
+  // console.log(`updated: #furnishings ${selected.furnishings.length} for location ${selection}`);
+  // console.log(`updated: #rooms ${rooms.length}`);
 }
 
 // --- svelte bound variables
@@ -105,8 +105,10 @@ function onPage(a) {
 }
 
 </script>
-<FurnishLocationsPager2 on:page={onPage} source={rooms} bind:room={selection}/>
 <div class="mt-2">
+  <div class="flex justify-center mb-2">
+    <FurnishLocationsPager2 on:page={onPage} source={rooms} bind:room={selection}/>
+  </div>
 {#if selected}
   <div class="flex justify-center mb-2">
     <Badge>Map {map.name}</Badge>
@@ -125,7 +127,7 @@ function onPage(a) {
   {:else}
   <div class="flex justify-center space-x-4">
   <ButtonIconAdd on:click={async () => await furnitureAdd(selected)}><Icon.Plus variation='outline'/></ButtonIconAdd>
-  <p>Click to add a furnishing</p>
+  <p class="text-gray-700 dark:text-gray-400">Click to add a furnishing</p>
   </div>
   {/if}
 {/if}

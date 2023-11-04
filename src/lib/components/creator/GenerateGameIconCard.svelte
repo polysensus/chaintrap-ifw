@@ -33,10 +33,7 @@
     {/if}
   </header>
   <div class="p-4 space-y-4">
-    <h5 class="mb-2 text-2xl font-bold tracking-tight">
-      Create trial poster 
-    </h5>
-    <p class="mb-3 font-normal leading-tight">
+    <p class="mb-3 text-gray-700 dark:text-gray-400 leading-tight">
       Describe the image you want to represent a trial in your dungeon
     </p>
     <textarea class="textarea" placeholder={prompt} bind:value={prompt}></textarea>

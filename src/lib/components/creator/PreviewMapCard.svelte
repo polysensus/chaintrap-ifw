@@ -42,6 +42,6 @@
 </div>
 {:else}
 <div class={innerPadding}>
-<p class="mb-3 font-normal text-gray-700 dark:text-gray-400 leading-tight">Generate a map, it will preview here</p>
+<p class="mb-3 leading-tight">Generate a map, it will preview here</p>
 </div>
 {/if}

@@ -11,6 +11,7 @@
   import PreviewMapCard from '$lib/components/creator/PreviewMapCard.svelte';
   import PageMapGenerator from '$lib/components/creator/PageMapGenerator.svelte';
   import FurnishLocationsContextStore from '$lib/components/FurnishLocationsContextStore.svelte';
+  import TrialCreateStepper from '$lib/components/trials/TrialCreateStepper.svelte';
   import PageGameCommands from '$lib/components/PageGameCommands.svelte';
 
   // application imports
@@ -116,7 +117,15 @@
   })
 
 </script>
+<div class="container h-full mx-auto flex justify-center">
+	<div class="space-y-2 text-center flex flex-col">
+		<h2 class="h2">Welcome to Chaintrap.</h2>
+    <TrialCreateStepper />
+    <PageGameCommands />
+	</div>
+</div>
 
+<!--
 <div class="container h-full mx-auto flex justify-center items-center">
 	<div class="space-y-10 text-center flex flex-col items-center">
 		<h2 class="h2">Welcome to Chaintrap.</h2>
@@ -126,7 +135,7 @@
       <FurnishLocationsContextStore />
     {/if}
     <PageMapGenerator hidden={false}/>
-    <PageGameCommands />
 	</div>
   <br/>
 </div>
+    -->

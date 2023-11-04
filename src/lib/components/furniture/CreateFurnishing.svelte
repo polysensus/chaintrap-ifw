@@ -43,14 +43,18 @@ let selected = {
   props: { }
 }
 
-$:{
+$:selected = updateSelected(selectedChoiceType)
+
+function updateSelected(selectedChoiceType) {
+  let selected = undefined;
+
   for (const c of furnitureComponents) {
     if (c.choiceType !== selectedChoiceType)
       continue
 
-    selected.furnitureType = c;
-    selected.props = {
-      ...c.props,
+    selected = {
+      furnitureType: c,
+      props: {...c.props}
     }
     switch (selected.furnitureType.choiceType) {
       case "open_chest": {
@@ -60,6 +64,7 @@ $:{
     }
     break;
   }
+  return selected;
 }
 
 // --- component state properties
@@ -77,7 +82,9 @@ let open = false;
  * @param {{type:string,choiceType:string,labels:string[]}} item 
  */
 function onClickFurnitureType(type) {
-  selectedChoiceType = type;
+  selected = updateSelected(type)
+  if (selected)
+    selectedChoiceType = type;
 }
 
 /**
@@ -100,6 +107,7 @@ async function validSelection(typeInfo) {
     meta:furnishing.meta,
     ...typeInfo, data
   }
+  console.log(`--- furniturePut: ${update.unique_name}`);
   await furniturePut(update);
 }
 
