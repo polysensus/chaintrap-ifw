@@ -20,7 +20,8 @@
   $: btnClass=selected?.name ? "btn variant-ghost w-48 justify-between" : "btn variant-filled w-48 justify-between";
 
   const popupCombobox = {
-    event: 'focus-click',
+    //event: 'focus-click', // apparently not on safari
+    event: 'click',
 	  target: 'popupCombobox',
 	  placement: 'bottom',
 	  closeQuery: '.listbox-item'
