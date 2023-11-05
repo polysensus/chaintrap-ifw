@@ -1,16 +1,11 @@
-<!-- YOU CAN DELETE EVERYTHING IN THIS PAGE -->
 <script>
   // framework imports
   import { onMount, onDestroy, setContext, getContext } from 'svelte';
-  import { get, writable, derived } from 'svelte/store';
+  import { derived } from 'svelte/store';
 
   // framework components
 
   // application components
-  import PageGameIconGenerator from '$lib/components/creator/PageGameIconGenerator.svelte';
-  import PreviewMapCard from '$lib/components/creator/PreviewMapCard.svelte';
-  import PageMapGenerator from '$lib/components/creator/PageMapGenerator.svelte';
-  import FurnishLocationsContextStore from '$lib/components/FurnishLocationsContextStore.svelte';
   import TrialCreateStepper from '$lib/components/trials/TrialCreateStepper.svelte';
   import PageGameCommands from '$lib/components/PageGameCommands.svelte';
 
@@ -31,6 +26,8 @@
   import { newRecentlyCreated } from '$lib/clientdata/storetrials/recent.js';
   import { newActiveTrials } from '$lib/clientdata/storetrials/active.js';
 
+  // --- constants
+  
   // contexts
   /**
    * @type {{request:{href?:string,origin?:string}}}
@@ -115,11 +112,10 @@
       trialdb.close();
     trialdb = undefined;
   })
-
 </script>
 <div class="container h-full mx-auto flex justify-center">
 	<div class="space-y-2 text-center flex flex-col">
-		<h2 class="h2">Welcome to Chaintrap.</h2>
+    <!-- <h2 class="h2">Welcome to Chaintrap.</h2> -->
     <TrialCreateStepper />
     <PageGameCommands />
 	</div>
