@@ -102,10 +102,6 @@
     await map.connect(trialdb);
     await furnishings.connect(trialdb);
     await trialPoster.connect(trialdb);
-
-    // force open the create drawer if there are no local maps
-    if (!$map)
-      showFurnishingControl = false;
   });
   onDestroy(async () => {
     if (trialdb)
@@ -120,18 +116,3 @@
     <PageGameCommands />
 	</div>
 </div>
-
-<!--
-<div class="container h-full mx-auto flex justify-center items-center">
-	<div class="space-y-10 text-center flex flex-col items-center">
-		<h2 class="h2">Welcome to Chaintrap.</h2>
-    <PageGameIconGenerator/>
-    {#if $map?.meta?.svg}
-      <PreviewMapCard mapImg={$map.meta.svg} mapScale={0.5}/>
-      <FurnishLocationsContextStore />
-    {/if}
-    <PageMapGenerator hidden={false}/>
-	</div>
-  <br/>
-</div>
-    -->
