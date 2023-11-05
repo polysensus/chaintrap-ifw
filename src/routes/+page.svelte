@@ -7,12 +7,9 @@
   // framework components
 
   // application components
-  import PageGameIconGenerator from '$lib/components/creator/PageGameIconGenerator.svelte';
-  import PreviewMapCard from '$lib/components/creator/PreviewMapCard.svelte';
-  import PageMapGenerator from '$lib/components/creator/PageMapGenerator.svelte';
-  import FurnishLocationsContextStore from '$lib/components/FurnishLocationsContextStore.svelte';
   import TrialCreateStepper from '$lib/components/trials/TrialCreateStepper.svelte';
   import PageGameCommands from '$lib/components/PageGameCommands.svelte';
+  import PagePresence from '$lib/components/presence/PagePresence.svelte';
 
   // application imports
   import { TrialContent } from '$lib/clientdata/trialcontent.js';
@@ -116,12 +113,17 @@
     trialdb = undefined;
   })
 
+  let providerButtonText = "Connect";
+
 </script>
 <div class="container h-full mx-auto flex justify-center">
 	<div class="space-y-2 text-center flex flex-col">
+<!--
 		<h2 class="h2">Welcome to Chaintrap.</h2>
+    -->
     <TrialCreateStepper />
     <PageGameCommands />
+    <PagePresence bind:providerButtonText={providerButtonText} />
 	</div>
 </div>
 
