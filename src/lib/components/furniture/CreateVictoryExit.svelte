@@ -1,9 +1,21 @@
 <script>
+
+// framework imports
+import { onMount } from 'svelte';
+import { createEventDispatcher } from 'svelte';
+
+// framework components
 import { ButtonGroup, SpeedDial, SpeedDialButton } from 'flowbite-svelte';
+
+// lib imports
 import { getLogger } from '$lib/log.js'
 
 // --- constants
-const log = getLogger('CreateRoomFurnishing')
+const log = getLogger('CreateVictoryExit#');
+
+// constants
+const dispatch = createEventDispatcher();
+
 const North = 'North';
 const West = 'West';
 const South = 'South';
@@ -20,37 +32,57 @@ export let data = {side:0, exit:0};
 
 export let placement = 'top';
 
-/**
- * 
- * @param {{sideName:string, type:string, choiceType:string, labels: string[], data:{side:number,exit:number}}} value
- */
-export let validSelection = async (value) => {}
-
 // --- component state properties
 let open = false;
 let sideName = sideNumbers[`${data.side}`];
-let exitsOpen = false;
-let sideExitCount = 0;
 
 $: sideName = sideNumbers[data.side]
 
 /**
  * @param {string} which
  */
- async function onClickSide(which) {
+ function onClickSide(which) {
+
+  console.log(`CreateVictoryExit# onClickSide: ${which}`);
+
+  const selection = whichToSelection(which);
+  if (!selection)
+    return;
+
+  dispatch('validSelection', selection);
+}
+
+/**
+ * @param {string} which
+ */
+function whichToSelection(which) {
+  // @ts-ignore
   let side = sides[which];
-  
+
   data = {side, exit:exitCounts[side]}
-  open = false;
-  if(data.side && validSelection)
-    await validSelection({
-      sideName,
+  if(!data.side)
+    return;
+
+  return {
+      // @ts-ignore
+      sideName: sideNumbers[side],
       type: "finish_exit",
       choiceType: "finish_exit",
       labels: ["victory_condition"],
-      data})
-
+      data};
 }
+
+onMount(async () => {
+
+  console.log(`asdfasd fasdfasdf`);
+
+  // When the component mounts, its due to a create or to a change of type. In
+  // both instances that represents a valid selection. So we dispatch on mount.
+  onClickSide(sideName);
+
+});
+
+
 </script>
 
 <ButtonGroup outline>
@@ -58,10 +90,10 @@ $: sideName = sideNumbers[data.side]
   <div slot="icon">
     {sideName}
   </div>
-  <SpeedDialButton on:click={async ()=> await onClickSide(North)} name={North}> </SpeedDialButton>
-  <SpeedDialButton on:click={async ()=> await onClickSide(West)} name={West}> </SpeedDialButton>
-  <SpeedDialButton on:click={async ()=> await onClickSide(South)} name={South}> </SpeedDialButton>
-  <SpeedDialButton on:click={async ()=> await onClickSide(East)} name={East}> </SpeedDialButton>
+  <SpeedDialButton on:click={()=> onClickSide(North)} name={North}/>
+  <SpeedDialButton on:click={()=> onClickSide(West)} name={West}/>
+  <SpeedDialButton on:click={()=> onClickSide(South)} name={South}/>
+  <SpeedDialButton on:click={()=> onClickSide(East)} name={East}/>
 </SpeedDial>
 
 <!-- finish exits need to be automatically placed on the chosen side to avoid
