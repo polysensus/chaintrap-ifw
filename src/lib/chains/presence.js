@@ -91,6 +91,7 @@ export class ChainPresence {
         console.info(`error fetching web3auth options ${error}`);
         throw new Error(error);
       }
+      console.log(`ChainPresence# refreshProviders api/web3auth: ${JSON.stringify(web3auth)}`);
       return web3auth;
     };
 
