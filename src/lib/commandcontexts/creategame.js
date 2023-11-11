@@ -18,10 +18,13 @@ export class CreateGameCommandCtx extends GuardianCommandCtx {
   }
 
   /**
-   * 
-   * @param {import('../console/completion.js').MatchResult} result 
+   * Run the command
+   * @param {string} name 
+   * @param {string} description 
+   * @param {number} maxParticipants 
+   * @returns 
    */
-  async exec(result) {
+  async run(name, description, maxParticipants) {
     this.result = undefined;
 
     if (!(this.guardian && this.trialPoster && this.map && this.furnishings)) {
@@ -30,9 +33,6 @@ export class CreateGameCommandCtx extends GuardianCommandCtx {
     }
 
     const options = {};
-    const name = result.values.name ?? `trial in ${this.map.name ?? "an un-named dungeon"}`;
-    const description = result.values.description ?? 'a game of chaintrap';
-    const maxParticipants = result.values.count;
 
     console.log('----');
     console.log(this.furnishings);
@@ -57,7 +57,7 @@ export class CreateGameCommandCtx extends GuardianCommandCtx {
 
     // Note: it is assumed that the front end proxies via routes/api/openai/ to
     // get the auth and actual target url.
-    result = await this.options.fetch(this.metadataURL, {
+    let result = await this.options.fetch(this.metadataURL, {
       method: "post",
       body: JSON.stringify(body),
       headers: {
@@ -75,5 +75,17 @@ export class CreateGameCommandCtx extends GuardianCommandCtx {
     console.log(`guardian: ${this.guardian}, arena ${this.guardian.arena}, args: ${JSON.stringify(args)}`);
     this.result = {tokenURI, ...(await this.guardian.createGame(...args))};
     return this.result;
+  }
+
+  /**
+   * 
+   * @param {import('../console/completion.js').MatchResult} result 
+   */
+  async exec(result) {
+
+    const name = result.values.name ?? `trial in ${this.map.name ?? "an un-named dungeon"}`;
+    const description = result.values.description ?? 'a game of chaintrap';
+    const maxParticipants = result.values.count;
+    return await this.run(name, description, maxParticipants);
   }
 }
