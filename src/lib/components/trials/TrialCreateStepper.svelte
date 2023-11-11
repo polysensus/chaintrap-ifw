@@ -1,7 +1,7 @@
 <script>
 
   // framework imports
-  import { onMount, onDestroy, setContext, getContext } from 'svelte';
+  import { onMount, getContext, tick } from 'svelte';
   import { get, writable, derived } from 'svelte/store';
 
   import {ImageGeneratorOpenAI} from '$lib/generative/gameicon.js';
@@ -10,7 +10,8 @@
 
   // application components
 
-  import { Stepper, Step } from '@skeletonlabs/skeleton';
+  import { Stepper, Step, clipboard } from '@skeletonlabs/skeleton';
+  import { ProgressRadial } from '@skeletonlabs/skeleton';
 
   // import PageGameIconGenerator from '$lib/components/creator/PageGameIconGenerator.svelte';
   import GenerateGameIconCard from '$lib/components/creator/GenerateGameIconCard.svelte';
@@ -18,6 +19,7 @@
   import PageMapGenerator from '$lib/components/creator/PageMapGenerator.svelte';
   import FurnishLocationsContextStore from '$lib/components/FurnishLocationsContextStore.svelte';
   import FurnitureSummaryList from '$lib/components/furniture/FurnitureSummaryList.svelte';
+  import { CreateGameCommandCtx } from '$lib/commandcontexts/creategame.js';
 
   /** @type {ImageGeneratorOpenAI} */
   let imageGenerator;
@@ -29,6 +31,14 @@
   const furnishings = getContext('furnishings');
   const trialPoster = getContext('trialPoster');
 
+  // ---
+  let trialDescription = "This is my dungeon, there are many like it, but this one is mine.";
+  let trialMaxParticipants = 2;
+  let createGameCmd = new CreateGameCommandCtx({fetch});
+  let trialCreating = false;
+  let trialDetails;
+
+  // --- display state
 
   /** @type {number|undefined}*/
   let step = 0;
@@ -56,8 +66,23 @@
     step = e?.detail?.state?.current + 1;
     console.log(`TrialCreateStepper# step: ${step}`)
   }
-  function onCompleteHandler() {
+
+  async function onCompleteHandler() {
     console.log(`TrialCreateStepper# complete`);
+    if (trialCreating)
+      return;
+    trialCreating = true;
+    await tick();
+    try {
+      let name = "A chaintrap trial"
+      if ($map.name)
+        name = `A trial in map "${$map.name}"`;
+      trialDetails = await createGameCmd.run(name, trialDescription, trialMaxParticipants);
+    } catch (err) {
+      console.log(`TrialCreateStepper# complete: ${err}`);
+    } finally {
+      trialCreating = false;
+    }
   }
 
   /**
@@ -81,6 +106,7 @@
 <Stepper
   start={step}
   buttonCompleteLabel="Mint"
+  on:complete={onCompleteHandler}
   on:step={onStepHandler} on:complete={onCompleteHandler} class={stepperClass}>
 
 	<Step class={stepClass} regionContent={stepContentClass}>
@@ -104,10 +130,18 @@
     {/if}
 	</Step>
 
-	<Step class={stepClass} regionContent={stepContentClass}>
+	<Step class={stepClass} regionContent={stepContentClass} locked={trialCreating}>
 		<svelte:fragment slot="header">Mint your dungeon trial</svelte:fragment>
-    <input class="input" title="Max Trialists" type="number" placeholder="Set the maximum number of trialists" />
-    <input class="input" title="Call to arms" type="text" placeholder="A short challenge to provoke or entice trialists" />
+    {#if !trialCreating}
+    <input class="input" title="Call to arms" bind:value={trialDescription} type="text" placeholder="A short challenge to provoke or entice trialists" />
+    <input class="input" title="Max Trialists" bind:value={trialMaxParticipants} type="number" placeholder="Set the maximum number of trialists" />
+    {:else}
+      <ProgressRadial />
+    {/if}
+    {#if trialDetails?.tokenURI}
+      <div data-clipboard="tokenURI">{trialDetails?.tokenURI}</div>
+      <button use:clipboard={{ element: 'tokenURI' }}>Copy</button>
+    {/if}
 	</Step>
 	<!-- ... -->
 </Stepper>
