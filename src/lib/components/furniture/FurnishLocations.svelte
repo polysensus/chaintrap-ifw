@@ -88,18 +88,7 @@ $: {
 // --- on dom event callbacks
 // --- contract state callbacks
 // --- component helpers
-let previous = () => {
 
-  // leave it to the reactive block to clip the range
-  pageStart -= pageSize;
-  pageEnd = pageStart + pageSize;
-}
-
-let next = () => {
-  // leave it to the reactive block to clip the range
-  pageEnd += pageSize;
-  pageStart += pageSize;
-}
 function onPage(a) {
   console.log(`FurnishLocations# onPage: ${a.detail}`);
 }

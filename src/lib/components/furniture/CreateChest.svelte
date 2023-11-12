@@ -1,30 +1,21 @@
 <script>
+
+// framework imports
+import { createEventDispatcher } from 'svelte';
+
+// framework components
 import { ButtonGroup, SpeedDial, SpeedDialButton } from 'flowbite-svelte';
-import { getLogger } from '$lib/log.js'
 
-const log = getLogger('CreateChest')
+// constants
+const dispatch = createEventDispatcher();
 
+// component props
 export let chestTypes = [];
 export let chestType = chestTypes[0]?.type ?? '';
-
-/**
- * 
- * @param {{type:string,choiceType:string,labels:string[],data?:object}} value
- */
-export let validSelection = async (value) => {}
 
 // --- component state properties
 let open = false;
 
-/**
- * @param {{type:string,choiceType:string,labels:string[]}} typeInfo 
- */
-function onClickChestType(typeInfo) {
-  chestType = typeInfo.type;
-  if (validSelection)
-    validSelection(typeInfo)
-}
-// --- component helpers
 </script>
 
 <ButtonGroup outline>
@@ -33,7 +24,9 @@ function onClickChestType(typeInfo) {
     {chestType}
   </div>
   {#each chestTypes as chest, i}
-    <SpeedDialButton  btnDefaultClass='w-full h-full shadow-sm !p-2' on:click={async ()=>await onClickChestType(chest)} name={chest.type}> </SpeedDialButton>
+    <SpeedDialButton
+      btnDefaultClass='w-full h-full shadow-sm !p-2'
+      on:click={() => {open = false; chestType = chest.type; dispatch('validSelection', chest)}} name={chest.type}/>
   {/each}
 </SpeedDial>
 </ButtonGroup>

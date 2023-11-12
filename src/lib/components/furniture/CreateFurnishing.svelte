@@ -20,6 +20,8 @@ export let furnishing = {};
 /** @type {Function|undefined} */
 export let furniturePut = undefined;
 
+export let selectedChoiceType = "open_chest";
+
 let furnitureComponents = [
   {
     choiceType: "open_chest",
@@ -37,14 +39,16 @@ let furnitureComponents = [
   }
 ];
 
-export let selectedChoiceType = furnitureComponents[0].choiceType;
-let selected = {
-  furnitureType: furnitureComponents[0],
-  props: { }
-}
+/**
+ * @type {{ furnitureType: { choiceType: string; component: typeof CreateChest; props: { chestTypes: { type: string; choiceType: string; labels: string[]; }[]; exitCounts?: undefined; }; } | { choiceType: string; component: typeof CreateVictoryExit; props: { exitCounts: number[]; chestTypes?: undefined; }; }; props: { chestTypes: { type: string; choiceType: string; labels: string[]; }[]; exitCounts?: undefined; } | { exitCounts: number[]; chestTypes?: undefined; }; } | undefined}
+ */
+let selected;
 
-$:selected = updateSelected(selectedChoiceType)
+$:selected = updateSelected(selectedChoiceType);
 
+/**
+ * @param {string} selectedChoiceType
+ */
 function updateSelected(selectedChoiceType) {
   let selected = undefined;
 
@@ -83,15 +87,14 @@ let open = false;
  */
 function onClickFurnitureType(type) {
   selected = updateSelected(type)
-  if (selected)
-    selectedChoiceType = type;
 }
 
 /**
  * 
  * @param {{type:string,choiceType:string,labels:string[],data?:object}} selection
  */
-async function validSelection(typeInfo) {
+async function validSelection(event) {
+  const typeInfo = event.detail;
   console.log(`--- validSelection: ${typeInfo.type}`);
   if (!furniturePut)
     return;
@@ -117,7 +120,7 @@ async function validSelection(typeInfo) {
 <ButtonGroup outline>
 <SpeedDial outline bind:open defaultClass="flex" pill={false} tooltip="none" name="">
   <div slot="icon">
-    {selectedChoiceType ?? 'undefined'}
+    {selected?.furnitureType?.choiceType ?? 'undefined'}
   </div>
   {#each furnitureComponents as furn, i}
     <SpeedDialButton  btnDefaultClass='w-full h-full shadow-sm !p-2' on:click={()=>onClickFurnitureType(furn.choiceType)} name={furn.choiceType}> </SpeedDialButton>
@@ -125,7 +128,7 @@ async function validSelection(typeInfo) {
 </SpeedDial>
 </ButtonGroup>
 {#if selected?.furnitureType?.component}
-  <svelte:component this={selected.furnitureType.component} {validSelection} {...selected.props}/>
+  <svelte:component this={selected.furnitureType.component} on:validSelection={validSelection} {...selected.props}/>
 {/if}
 <style>
 </style>
