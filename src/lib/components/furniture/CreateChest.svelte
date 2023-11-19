@@ -1,11 +1,12 @@
 <script>
+import { onMount } from 'svelte';
 import { ButtonGroup, SpeedDial, SpeedDialButton } from 'flowbite-svelte';
 import { getLogger } from '$lib/log.js'
 
 const log = getLogger('CreateChest')
 
-export let chestTypes = [];
-export let chestType = chestTypes[0]?.type ?? '';
+/** @type {{chestTypes:string[],chestType:string}|undefined}*/
+export let props;
 
 /**
  * 
@@ -15,6 +16,13 @@ export let validSelection = async (value) => {}
 
 // --- component state properties
 let open = false;
+/** @type {string[]|undefined}*/
+let chestTypes = [];
+/** @type {string|undefined}*/
+let chestType = '';
+
+$: chestTypes = props?.chestTypes;
+$: chestType = props?.chestType;
 
 /**
  * @param {{type:string,choiceType:string,labels:string[]}} typeInfo 
@@ -24,7 +32,19 @@ function onClickChestType(typeInfo) {
   if (validSelection)
     validSelection(typeInfo)
 }
+onMount(async () =>{
+  if (chestType) {
+    for (const chest of chestTypes)
+      if (chest.type === chestType) {
+        validSelection(chest);
+        return
+      }
+  }
+  if (chestTypes.length)
+    await validSelection(chestTypes[0]);
+})
 // --- component helpers
+
 </script>
 
 <ButtonGroup outline>

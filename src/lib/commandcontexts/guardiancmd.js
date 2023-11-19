@@ -14,7 +14,7 @@ export class GuardianCommandCtx {
     s = getContext('map');
     if (s) s.subscribe((value)=>this.map = value);
 
-    s = getContext('furnishing');
+    s = getContext('furnishings');
     if (s)
       s.subscribe((value)=>this.furnishings = value);
 

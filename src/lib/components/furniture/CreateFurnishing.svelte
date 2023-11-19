@@ -38,12 +38,18 @@ let furnitureComponents = [
 ];
 
 export let selectedChoiceType = furnitureComponents[0].choiceType;
-let selected = {
-  furnitureType: furnitureComponents[0],
-  props: { }
-}
 
-$:selected = updateSelected(selectedChoiceType)
+let component;
+let props;
+
+$: {
+  const selected = updateSelected(selectedChoiceType);
+  component = selected?.furnitureType?.component;
+  props = {...selected?.props}
+  if (selected){
+    
+  }
+}
 
 function updateSelected(selectedChoiceType) {
   let selected = undefined;
@@ -64,6 +70,7 @@ function updateSelected(selectedChoiceType) {
     }
     break;
   }
+  log.info(`type: ${selected?.furnitureType?.choiceType}, props: ${JSON.stringify(selected.props)}`)
   return selected;
 }
 
@@ -82,9 +89,10 @@ let open = false;
  * @param {{type:string,choiceType:string,labels:string[]}} item 
  */
 function onClickFurnitureType(type) {
-  selected = updateSelected(type)
-  if (selected)
-    selectedChoiceType = type;
+  selectedChoiceType = type;
+  // selected = updateSelected(type)
+  // if (selected)
+  //   selectedChoiceType = type;
 }
 
 /**
@@ -124,8 +132,8 @@ async function validSelection(typeInfo) {
   {/each}
 </SpeedDial>
 </ButtonGroup>
-{#if selected?.furnitureType?.component}
-  <svelte:component this={selected.furnitureType.component} {validSelection} {...selected.props}/>
+{#if component}
+  <svelte:component this={component} {validSelection} {props}/>
 {/if}
 <style>
 </style>
