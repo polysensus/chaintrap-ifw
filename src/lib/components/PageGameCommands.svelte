@@ -4,72 +4,24 @@
 // --- lib deps
 //import * as PIXI from 'pixi.js'
 // --- framework
-import { onMount, setContext, getContext, onDestroy } from 'svelte'
+import { getContext } from 'svelte'
 // --- external components
 // --- components
 import CommandBox from './commandbox/CommandBox.svelte';
 // --- app lib
 import { getLogger } from '$lib/log.js';
-import { CodeMirrorCommandSet } from '$lib/console/codemirror.js';
-import { CreateGameCommandCtx } from '$lib/commandcontexts/creategame.js';
-import { JoinGameCommandCtx } from '$lib/commandcontexts/joingame.js';
-import { SetStartCommandCtx } from '$lib/commandcontexts/setstart.js';
-import { StartGameCommandCtx } from '$lib/commandcontexts/startgame.js';
-
-import { Completion } from '$lib/console/completion.js';
-import { NumberMatcher, SideMatcher, WordMatcher } from '$lib/console/matchers.js';
 
 // --- app stores
-
-const map = getContext('map');
-const furnishings = getContext('furnishings');
-const trialPoster = getContext('trialPoster');
-
-// The following require a provider connection
-const arena = getContext('arena');
-const eventParser = getContext('eventParser');
-const guardian = getContext('guardian');
 
 // --- constants
 const log = getLogger('PageGameCommands')
 const metadataURL = '/api/nftstorage/metadata';
 // --- data imports
 // --- component properties
-export let showMapGenerator = false;
-// --- component state properties
-const commands = new CodeMirrorCommandSet();
 
-const createGameCmd = new CreateGameCommandCtx({fetch});
-commands.append(
-  new Completion(
-    {phrase:'create game for \{${count}\} players', prefix:'create game'},
-    new NumberMatcher("count")),
-  createGameCmd.exec.bind(createGameCmd)
-);
-
-const joinGameCmd = new JoinGameCommandCtx();
-commands.append(
-  new Completion(
-    {phrase:'join game \{${id}\} as \{${nickname}\}', prefix:'join game'},
-    new NumberMatcher("id"), new WordMatcher("nickname")),
-  joinGameCmd.exec.bind(joinGameCmd)
-);
-
-const setStartCmd = new SetStartCommandCtx();
-commands.append(
-  new Completion(
-    {phrase:'set start for player \{${index}\} in game \{${id}\} to location \{${location}\}', prefix:'set start for player'},
-    new NumberMatcher("index"), new NumberMatcher("id"), new NumberMatcher("location")),
-  setStartCmd.exec.bind(setStartCmd)
-);
-
-const startGameCmd = new StartGameCommandCtx(setStartCmd);
-commands.append(
-  new Completion(
-    {phrase:'start game \{${id}\}', prefix:'start game'},
-    new NumberMatcher("id")),
-  startGameCmd.exec.bind(startGameCmd)
-);
+// Note: see lib/console/gamecommandsets for helpers to build this
+/** @type {import("../console/codemirror.js").CodeMirrorCommandSet|undefined}*/
+export let commands = undefined;
 
 // --- svelte bound variables
 // let instance = undefined
@@ -85,11 +37,12 @@ commands.append(
  * @param value
  */
 function onComplete(value) {
-  console.log('completion event');
-  console.log(JSON.stringify(value.detail))
-  console.log('arena:', $arena);
-  console.log('eventParser:', $eventParser);
-  console.log('guardian:', $guardian);
+  if (!commands) {
+    log.info('no commands defined');
+    return;
+  }
+  log.info('completion event');
+  log.debug(JSON.stringify(value.detail))
 
   const result = commands.match(value.detail);
   if (!result) {
@@ -98,8 +51,8 @@ function onComplete(value) {
   }
   const {completion, callback} = result;
   callback(completion.result).then((result)=>{
-    console.log(`${completion.prefix} done`);
-    console.log(`${JSON.stringify(result)}`);
+    log.debug(`${completion.prefix} done`);
+    log.debug(`${JSON.stringify(result)}`);
   });
 }
 
@@ -108,6 +61,8 @@ function onComplete(value) {
 
 <BottomBar completions={commands.snippetCompletions()} on:onNewline={onComplete} bind:bottomNavCreateToggle={showMapGenerator}/>
 -->
+{#if commands}
 <CommandBox completions={commands.snippetCompletions()} on:onChange on:onPick on:onNewline={onComplete} class="min-w-full border-2 rounded-lg"/>
+{/if}
 <style>
 </style>
