@@ -9,7 +9,10 @@ import { GuardianCommandCtx } from './guardiancmd.js';
 export class SetStartCommandCtx extends GuardianCommandCtx {
   constructor(options) {
     super();
-    this.options=options;
+
+    this.gid = options?.gid;
+    if (!this.gid) throw new Error(`This command requires a gid`);
+
     this.result = undefined;
     this.starts = {};
   }
@@ -30,9 +33,7 @@ export class SetStartCommandCtx extends GuardianCommandCtx {
       return;
     }
 
-    const options = {};
-    const gid = gameToken(result.values.id);
-    const gidHex = gid.toHexString();
+    const gidHex = this.gid.toHexString();
 
     console.log(Object.keys(this.guardian.journal?.transcripts))
 

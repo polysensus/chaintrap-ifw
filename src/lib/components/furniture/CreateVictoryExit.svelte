@@ -1,4 +1,5 @@
 <script>
+import { onMount } from 'svelte';
 import { ButtonGroup, SpeedDial, SpeedDialButton } from 'flowbite-svelte';
 import { getLogger } from '$lib/log.js'
 
@@ -9,16 +10,27 @@ const West = 'West';
 const South = 'South';
 const East = 'East';
 
+/** @type {Object.<string,number>}*/
 const sides = { North: 0, West: 1, South: 2, East: 3 }
+
+/** @type {Object.<number,string>}*/
 const sideNumbers = {0: "North", 1: "West", 2: "South", 3: "East"}
+const staticTypeInfo = {
+  type: "finish_exit",
+  choiceType: "finish_exit",
+  labels: ["victory_condition"]
+}
 
 // --- component properties
-export let exitCounts = [0, 0, 0, 0]; // a count for each side
 
+export let props;
+
+let exitCounts = [0, 0, 0, 0]; // a count for each side
 /** @type {{side:number,exit:number}} */
-export let data = {side:0, exit:0};
+let data = {side:0, exit:0};
 
-export let placement = 'top';
+$: exitCounts = props?.exitCounts;
+$: data = props?.data ?? {side:0, exit:0};
 
 /**
  * 
@@ -29,8 +41,6 @@ export let validSelection = async (value) => {}
 // --- component state properties
 let open = false;
 let sideName = sideNumbers[`${data.side}`];
-let exitsOpen = false;
-let sideExitCount = 0;
 
 $: sideName = sideNumbers[data.side]
 
@@ -43,14 +53,13 @@ $: sideName = sideNumbers[data.side]
   data = {side, exit:exitCounts[side]}
   open = false;
   if(data.side && validSelection)
-    await validSelection({
-      sideName,
-      type: "finish_exit",
-      choiceType: "finish_exit",
-      labels: ["victory_condition"],
-      data})
+    await validSelection({ sideName, ...staticTypeInfo, data})
 
 }
+
+onMount(async () =>{
+  await validSelection({ sideName, ...staticTypeInfo, data});
+})
 </script>
 
 <ButtonGroup outline>

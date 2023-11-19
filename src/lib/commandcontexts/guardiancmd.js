@@ -9,9 +9,19 @@ export class GuardianCommandCtx {
     this.map = this.furnishings = this.trialPoster = this.guardian = undefined;
     this.metadataURL = '/api/nftstorage/metadata';
 
-    getContext('map').subscribe((value)=>this.map = value);
-    getContext('furnishings').subscribe((value)=>this.furnishings = value);
-    getContext('trialPoster').subscribe((value)=>this.trialPoster = value);
+    let s = undefined;
+
+    s = getContext('map');
+    if (s) s.subscribe((value)=>this.map = value);
+
+    s = getContext('furnishings');
+    if (s)
+      s.subscribe((value)=>this.furnishings = value);
+
+    s = getContext('trialPoster');
+    if (s)
+      s.subscribe((value)=>this.trialPoster = value);
+
     getContext('guardian').subscribe((value)=>this.guardian = value);
   }
 

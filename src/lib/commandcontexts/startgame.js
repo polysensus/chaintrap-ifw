@@ -13,6 +13,10 @@ import { GuardianCommandCtx } from './guardiancmd.js';
 export class StartGameCommandCtx extends GuardianCommandCtx {
   constructor(startCtx, options) {
     super();
+
+    this.gid = options?.gid;
+    if (!this.gid) throw new Error(`This command requires a gid`);
+
     this.options=options;
     this.result = undefined;
     this.startCtx = startCtx;
@@ -29,8 +33,6 @@ export class StartGameCommandCtx extends GuardianCommandCtx {
       console.log(`guardian, poster, map and furnishings are all required to create a trial`);
       return;
     }
-    const gid = gameToken(result.values.id);
-    const gidHex = gid.toHexString();
 
     const indices = Object.keys(this.startCtx.starts).map((value)=>Number(value));
     indices.sort((a, b) => a - b);
@@ -38,7 +40,7 @@ export class StartGameCommandCtx extends GuardianCommandCtx {
     for (const i of indices)
       starts.push(this.startCtx.starts[`${i}`].location);
 
-    const txr = await this.guardian.startGame(gid, ...starts);
+    const txr = await this.guardian.startGame(this.gid, ...starts);
     this.result = {ok: true, ...txr};
     return this.result;
   }

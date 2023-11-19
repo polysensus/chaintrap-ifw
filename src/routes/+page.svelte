@@ -7,7 +7,6 @@
 
   // application components
   import TrialCreateStepper from '$lib/components/trials/TrialCreateStepper.svelte';
-  import PageGameCommands from '$lib/components/PageGameCommands.svelte';
 
   // application imports
   import { TrialContent } from '$lib/clientdata/trialcontent.js';
@@ -113,6 +112,5 @@
 	<div class="space-y-2 text-center flex flex-col">
     <!-- <h2 class="h2">Welcome to Chaintrap.</h2> -->
     <TrialCreateStepper />
-    <PageGameCommands />
 	</div>
 </div>

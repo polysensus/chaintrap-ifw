@@ -5,6 +5,8 @@
   import { Trial, CODEX_INDEXED_ITEMS } from "@polysensus/chaintrap-arenastate";
   import { BlobCodex } from '@polysensus/blobcodex';
   import PreviewMapCard from '$lib/components/creator/PreviewMapCard.svelte';
+  import PageGameCommands from '$lib/components/PageGameCommands.svelte';
+  import {createGuardianCommands} from '$lib/console/gamecommandsets.js';
 
   import {
     Guardian, Trialist,
@@ -46,7 +48,9 @@
 
   let codex;
   let trial;
+  /** @type {ethers.BigNumber|undefined}*/
   let gid;
+  /** @type {string|undefined}*/
   let trialImg;
 
   onMount(async () => {
@@ -70,4 +74,7 @@
 {/if}
 {#if trialImg}
   <PreviewMapCard mapImg={trialImg} mapScale={1.0}/>
+{/if}
+{#if gid}
+<PageGameCommands commands={createGuardianCommands({gid})}/>
 {/if}

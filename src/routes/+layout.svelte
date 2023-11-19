@@ -4,11 +4,12 @@
   // framework imports
   import { twMerge } from 'tailwind-merge';
   import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
+  import { clipboard } from '@skeletonlabs/skeleton';
   import { storePopup } from '@skeletonlabs/skeleton';
   storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
   import { setContext } from 'svelte';
-  import { get, writable } from 'svelte/store';
+  import { get, writable, derived } from 'svelte/store';
 
   // framework components
 	import { AppShell, AppBar } from '@skeletonlabs/skeleton';
@@ -32,6 +33,25 @@
 
   const presence = new ChainPresence({ networks: all });
   setContext('presence', presence);
+
+  const walletAddress = derived(arena, async ($arena, set) => {
+    if (!$arena) {
+      set(undefined);
+      return;
+    }
+    const address = await $arena?.signer?.getAddress();
+    set(address);
+  });
+  setContext('walletAddress', walletAddress);
+
+  let walletAddressAbbrev = undefined;
+
+  $: walletAddressAbbrev = abbrevAddr($walletAddress)
+
+  function abbrevAddr(address, sep='..') {
+    if (!address) return "";
+    return address.slice(0, 6) + sep + address.slice(address.length -2)
+  }
 
   // state vars
   let providerButtonText;
@@ -58,6 +78,7 @@
         <button id="providers-toggle" type="button" class="{providerButtonClass}">{providerButtonText}</button>
         -->
         <PagePresence bind:providerButtonText={providerButtonText} />
+        {#if !$walletAddress}
 				<a
 					class="btn btn-sm variant-ghost-surface"
 					href="https://discord.gg/ytn98NnchE"
@@ -66,6 +87,10 @@
 				>
 					Discord
 				</a>
+        {:else}
+          <p class="invisible w-0" data-clipboard="walletAddress">{$walletAddress}</p>
+          <button use:clipboard={{ element: 'walletAddress' }}>{walletAddressAbbrev}</button>
+        {/if}
 			</svelte:fragment>
 		</AppBar>
 	</svelte:fragment>

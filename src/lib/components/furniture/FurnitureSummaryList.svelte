@@ -6,7 +6,9 @@ import { Badge, Listgroup, ListgroupItem } from 'flowbite-svelte';
 import { HeartOutline, ThumbsDownOutline, SunOutline } from 'flowbite-svelte-icons';
 // --- components
 // --- app lib
+import { getLogger } from '$lib/log.js';
 // --- constants
+const log = getLogger('FurnitureSummaryList#')
 // --- data imports
 // --- component properties
 /** @type {{map:{name:string,beta:string},items:{unique_name?:string,labels:string[],type:string,data:{location:number},meta:any}[]}|undefined}*/
@@ -21,13 +23,16 @@ $: {
   const collate = {}
   for (const furn of (furnishings ?? [])) {
 
-    console.log(`furn beta ${furn.map.beta} map ${map?.vrf_inputs?.proof?.beta}`);
+    // console.log(`furn beta ${furn.map.beta} map ${map?.vrf_inputs?.proof?.beta}`);
     if (furn.map.beta !== map?.vrf_inputs?.proof?.beta)
       continue;
 
     const loc = collate[furn.data.location] ?? {};
     const locType = loc[furn.type] ?? {};
     locType.count = (locType?.count ?? 0) + 1;
+
+    log.debug(`loc: ${furn?.data?.location}, type: ${furn?.type}, count: ${locType.count}`);
+
     switch (furn.type) {
       case 'fatal_chest_trap': {
         locType.icon = ThumbsDownOutline;
