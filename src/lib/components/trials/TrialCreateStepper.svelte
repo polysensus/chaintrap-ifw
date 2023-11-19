@@ -193,6 +193,12 @@
 				>
          Operate
 				</a>
+				<a
+					class="btn btn-sm variant-ghost-surface"
+					href={`/trial/trialist/${gameInstance(gid)}/${chain ?? 'not-connected'}`}
+				>
+         Participate
+				</a>
 
       </li>
       {/each}
