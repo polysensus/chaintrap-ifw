@@ -47,8 +47,24 @@
     return new EventParser($arena, ArenaEvent.fromParsedEvent);
   });
   let ownedGames = newOwnerTrials(eventParser);
+  let ownedEntries = [];
+  $:{
+    const chainName = presence?.providerSwitch?.getCurrent()?.cfg?.name;
+    if (chainName) {
+      ownedEntries = [];
+      for (const gid of $ownedGames.reverse()) {
+        ownedEntries.push({
+          gameToken: gid.toHexString(),
+          gameNumber: gameInstance(gid),
+          operatorUrl:`/trial/guardian/${gameInstance(gid)}/${chainName}`,
+          trialistUrl:`/trial/trialist/${gameInstance(gid)}/${chainName}`
+        });
+      }
+    }
+  }
 
   // ---
+  let connected = false;
   let trialDescription = "This is my dungeon, there are many like it, but this one is mine.";
   let trialMaxParticipants = 2;
   let createGameCmd = new CreateGameCommandCtx({fetch});
@@ -75,6 +91,7 @@
 
   let chain = undefined;
   $: chain = presence?.providerSwitch?.getCurrent()?.cfg?.name;
+  $: connected = chain !== undefined ? true : false;
 
   let stepperClass="h-500";
   let stepClass=""
@@ -122,6 +139,8 @@
   // --- svelte lifecycle callbacks
   onMount(async () => {
     imageGenerator = new ImageGeneratorOpenAI(fetch, `${data?.request?.origin}/api/openai/images/generation`);
+    chain = presence?.providerSwitch?.getCurrent()?.cfg?.name;
+    console.log(`onMount: chain: ${chain}`);
   });
 </script>
 <Stepper
@@ -184,18 +203,22 @@
     {/if}
     {#if $ownedGames?.length}
     <ol class="list">
-      {#each $ownedGames.reverse() as gid}
+      {#if ownedEntries.length === 0}
+      <li><p>Connect to operate, or participate in, your games</p></li>
+      {/if}
+      {#each ownedEntries as owned}
       <li>
-        <span class="badge variant-filled-primary">{gameInstance(gid)}</span>
+        <span class="badge variant-filled-primary">{owned.gameNumber}</span>
 				<a
+          data-sveltekit-preload-data="tap"
 					class="btn btn-sm variant-ghost-surface"
-					href={`/trial/guardian/${gameInstance(gid)}/${chain ?? 'not-connected'}`}
+					href={owned.operatorUrl}
 				>
          Operate
 				</a>
 				<a
-					class="btn btn-sm variant-ghost-surface"
-					href={`/trial/trialist/${gameInstance(gid)}/${chain ?? 'not-connected'}`}
+          data-sveltekit-preload-data="tap"
+					href={owned.trialistUrl}
 				>
          Participate
 				</a>
@@ -208,12 +231,12 @@
 	</Step>
 	<!-- ... -->
 </Stepper>
-
-{#if (step===0)}
+<p>step: {step}</p>
+{#if (step===1)}
   {#if trialPosterImg}
     <img src={trialPosterImg} class="bg-black/50 w-full aspect-[1/1]" alt="Trial Poster" /> 
   {/if}
-{:else if (step >=1 && step <=3)}
+{:else if (step > 1 && step <=3)}
   {#if $map?.meta?.svg}
     <PreviewMapCard mapImg={$map.meta.svg} mapScale={1.0}/>
   {/if}
