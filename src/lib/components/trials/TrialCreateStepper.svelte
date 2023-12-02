@@ -26,11 +26,12 @@
   import FurnitureSummaryList from '$lib/components/furniture/FurnitureSummaryList.svelte';
   import { CreateGameCommandCtx } from '$lib/commandcontexts/creategame.js';
 
-  
-  import { newOwnerTrials } from '$lib/clientdata/storetrials/owned.js';
+  import { findOwnedGames } from '$lib/chaintrap.js';
 
   /** @type {ImageGeneratorOpenAI} */
   let imageGenerator;
+
+  const ownedGamesHistory = 5;
 
 
   // contexts
@@ -46,22 +47,8 @@
     if (!$arena) return undefined;
     return new EventParser($arena, ArenaEvent.fromParsedEvent);
   });
-  let ownedGames = newOwnerTrials(eventParser);
   let ownedEntries = [];
-  $:{
-    const chainName = presence?.providerSwitch?.getCurrent()?.cfg?.name;
-    if (chainName) {
-      ownedEntries = [];
-      for (const gid of $ownedGames.reverse()) {
-        ownedEntries.push({
-          gameToken: gid.toHexString(),
-          gameNumber: gameInstance(gid),
-          operatorUrl:`/trial/guardian/${gameInstance(gid)}/${chainName}`,
-          trialistUrl:`/trial/trialist/${gameInstance(gid)}/${chainName}`
-        });
-      }
-    }
-  }
+  $: refreshOwnedEntries($eventParser);
 
   // ---
   let connected = false;
@@ -116,6 +103,7 @@
       if ($map.name)
         name = `A trial in map "${$map.name}"`;
       trialDetails = await createGameCmd.run(name, trialDescription, trialMaxParticipants);
+      await refreshOwnedEntries($eventParser);
     } catch (err) {
       console.log(`TrialCreateStepper# complete: ${err}`);
     } finally {
@@ -136,11 +124,31 @@
     trialPoster.add(result);
   }
 
+  async function refreshOwnedEntries(eventParser) {
+    if (!eventParser) return;
+    const chainName = presence?.providerSwitch?.getCurrent()?.cfg?.name;
+    if (!chainName) return;
+
+    const entries = [];
+
+    const gids = await findOwnedGames(eventParser, ownedGamesHistory, {incomplete:true});
+    for (const gid of gids.reverse()) {
+      entries.push({
+        gameToken: gid.toHexString(),
+        gameNumber: gameInstance(gid),
+        operatorUrl:`/trial/guardian/${gameInstance(gid)}/${chainName}`,
+        trialistUrl:`/trial/trialist/${gameInstance(gid)}/${chainName}`
+      });
+    }
+    ownedEntries = entries;
+  }
+
   // --- svelte lifecycle callbacks
   onMount(async () => {
     imageGenerator = new ImageGeneratorOpenAI(fetch, `${data?.request?.origin}/api/openai/images/generation`);
     chain = presence?.providerSwitch?.getCurrent()?.cfg?.name;
-    console.log(`onMount: chain: ${chain}`);
+    console.log(`TrialCreateStepper# onMount: chain: ${chain}`);
+    await refreshOwnedEntries($eventParser);
   });
 </script>
 <Stepper
@@ -201,10 +209,9 @@
     {#if !$guardian}
     <p>You need to connect to mint</p>
     {/if}
-    {#if $ownedGames?.length}
     <ol class="list">
-      {#if ownedEntries.length === 0}
-      <li><p>Connect to operate, or participate in, your games</p></li>
+      {#if (ownedEntries?.length ?? 0) === 0}
+      <li><p>You currently own no trials.</p></li>
       {/if}
       {#each ownedEntries as owned}
       <li>
@@ -227,7 +234,6 @@
       {/each}
       <!-- ... -->
     </ol>
-    {/if}
 	</Step>
 	<!-- ... -->
 </Stepper>

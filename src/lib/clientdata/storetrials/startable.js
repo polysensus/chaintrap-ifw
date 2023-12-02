@@ -1,9 +1,10 @@
 // This store contains the most recent trials created by the current signer
 import { filterTrials, findTranscriptEvent, ABIName } from "@polysensus/chaintrap-arenastate";
 import { derived } from "svelte/store";
+import { defaultChainPollMS } from "./const.js";
 
 export const defaultOptions = {
-  pollIntervalMS: 1000,
+  pollIntervalMS: defaultChainPollMS,
   capacity: 5,
   incomplete: true
 }

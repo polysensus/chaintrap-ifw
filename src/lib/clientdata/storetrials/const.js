@@ -1,0 +1,1 @@
+export const defaultChainPollMS = 3500;

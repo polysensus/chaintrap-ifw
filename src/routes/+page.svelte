@@ -77,8 +77,8 @@
   });
   setContext('trialist', trialist);
 
-  let ownedGames = newOwnerTrials(eventParser);
-  setContext('ownedGames', ownedGames);
+  // let ownedGames = newOwnerTrials(eventParser);
+  // setContext('ownedGames', ownedGames);
 
   const recentGames = newRecentlyCreated(eventParser);
   setContext('recentGames', recentGames);
