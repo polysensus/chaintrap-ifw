@@ -17,7 +17,6 @@
 
   // application components
   import PagePresence from '$lib/components/presence/PagePresence.svelte';
-  import ProvidersList from '$lib/components/presence/ProvidersList.svelte';
 
   // application imports
   import { ChainPresence } from '$lib/chains/presence.js';
@@ -73,10 +72,6 @@
 
 			</svelte:fragment>
 			<svelte:fragment slot="trail">
-        <!--
-        <ProvidersList {providers}/>
-        <button id="providers-toggle" type="button" class="{providerButtonClass}">{providerButtonText}</button>
-        -->
         <PagePresence bind:providerButtonText={providerButtonText} />
         {#if !$walletAddress}
 				<a

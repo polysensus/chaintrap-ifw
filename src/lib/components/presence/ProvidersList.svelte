@@ -27,12 +27,18 @@
 	  closeQuery: '.listbox-item'
   }
 
-  $: {
-    if (lastName !== selected?.name) {
-      lastName = selected?.name;
-      dispatch('providerSelected', selected);
-    }
+  function onClick(event, item) {
+    console.log(`ProviderList#onClick ${JSON.stringify(event?.detail)}`)
+    lastName = item?.name;
+    dispatch('providerSelected', item);
   }
+
+  // $: {
+  //   if (lastName !== selected?.name) {
+  //     lastName = selected?.name;
+  //     dispatch('providerSelected', selected);
+  //   }
+  // }
 </script>
 
 <button class="{btnClass}" use:popup={popupCombobox}>
@@ -48,7 +54,7 @@
   {#if providers}
   <ListBox rounded="rounded-none">
     {#each providers as item}
-    <ListBoxItem bind:group={selected} name="medium" value={item}>
+    <ListBoxItem bind:group={selected} name="medium" value={item} on:click={(event) => onClick(event, item)}>
 		<div class="flex flex-row">
 			<span class="badge bg-primary-500">{item.chainId}</span>
       <span class="px-1.5">{item.name}</span>

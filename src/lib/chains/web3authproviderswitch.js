@@ -1,6 +1,8 @@
 // --- lib deps
 import * as web3auth_modal from '@web3auth/modal';
+import * as web3auth_base from '@web3auth/base';
 const { Web3Auth } = web3auth_modal;
+const { ADAPTER_STATUS } = web3auth_base;
 import * as web3auth_openlogin_adapter from '@web3auth/openlogin-adapter';
 const { OpenloginAdapter } = web3auth_openlogin_adapter;
 
@@ -28,5 +30,32 @@ export class Web3AuthModalProviderSwitch extends Web3AuthModalProviderSwitchAbst
   newOpenLoginAdapter(cfg, adapterSettings) {
     // cfg is ignored, we assume that it contains clientId and network
     return new OpenloginAdapter(adapterSettings);
+  }
+
+  /**
+   * Call after init to determine the current status
+   * 
+   * Useful for initialising logged in / connected states without triggering
+   * modal
+   */
+  async refreshLoginStatus(selectIfConnected=false) {
+    const status = super.refreshLoginStatus(ADAPTER_STATUS.CONNECTED);
+    if (!status)
+      return undefined;
+
+    let connectedName;
+
+    for (const [name, chainConfig] of Object.entries(this.web3authChains)) {
+      if (chainConfig.chainId !== this.web3auth.coreOptions.chainConfig.chainId)
+        continue;
+      
+      console.log(`Web3AuthModalProviderSwitch# auto selecting ${name}`);
+      connectedName = name;
+      if (selectIfConnected)
+        await this.select(connectedName);
+      break;
+    }
+
+    return connectedName;
   }
 }
