@@ -2,8 +2,10 @@
 import { filterTrials } from "@polysensus/chaintrap-arenastate";
 import { derived } from "svelte/store";
 
+import { defaultChainPollMS } from "./const.js";
+
 export const defaultOptions = {
-  pollIntervalMS: 1000,
+  pollIntervalMS: defaultChainPollMS,
   capacity: 5
 }
 

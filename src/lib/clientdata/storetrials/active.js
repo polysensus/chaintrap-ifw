@@ -6,8 +6,10 @@ import { derived } from "svelte/store";
 import { isUndefined, filterTrials, findTranscriptEvent, ABIName, CODEX_INDEXED_ITEMS } from "@polysensus/chaintrap-arenastate";
 import {BlobCodex} from '@polysensus/blobcodex';
 
+import { defaultChainPollMS } from "./const.js";
+
 export const defaultOptions = {
-  pollIntervalMS: 1000,
+  pollIntervalMS: defaultChainPollMS,
   capacity: 5,
   incomplete: true
 }
