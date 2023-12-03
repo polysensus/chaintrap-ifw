@@ -1,5 +1,17 @@
 import { ProviderType } from '@polysensus/chaintrap-arenastate';
 
+export function namedProviderRoute(page) {
+  if (typeof page?.url?.pathname !== "string") return undefined;
+
+  const segments = page.url.pathname.split("/");
+  const candidate = segments.pop();
+  if (typeof candidate === 'undefined') return undefined;
+
+  if (candidate in all) return candidate;
+
+  return undefined;
+}
+
 export const all = {};
 all['op-goerli'] = {
   name: 'op-goerli',

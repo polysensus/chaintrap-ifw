@@ -1,8 +1,12 @@
 <script>
-  import { onMount, getContext } from 'svelte';
-  import { arenaConnect } from '@polysensus/chaintrap-arenastate';
-  import ProvidersList from '$lib/components/presence/ProvidersList.svelte';
+
   import { awaitable } from '@polysensus/chaintrap-arenastate';
+  import { arenaConnect } from '@polysensus/chaintrap-arenastate';
+
+  import { onMount, getContext } from 'svelte';
+  import { page } from '$app/stores';
+  import ProvidersList from '$lib/components/presence/ProvidersList.svelte';
+  import { namedProviderRoute } from '$lib/chains/supportedproviders.js';
 
   export let providerButtonText = '';
 
@@ -52,11 +56,18 @@
     if (!presence?.providerSwitch) return;
     console.log(`PagePresence# refreshing login status`);
     const connectedName = await presence.providerSwitch.refreshLoginStatus(true);
-    if (!connectedName) return;
+    const routedName = namedProviderRoute($page);
+    if (!(connectedName || routedName)) return;
+
+    // The web3auth provider remains connected until explicitly logged out. But
+    // we want to prefer the routed provider for the presence selection
+    let routedProvider, connectedProvider;
     for (const p of providers) {
-      if (p.name !== connectedName) continue;
-      return p;
+      if (routedName && !routedProvider && p.name === routedName) routedProvider = p;
+      if (!connectedProvider && p.name === connectedName) connectedProvider = p;
+      if (connectedProvider && (!routedName || routedProvider)) break;
     }
+    return routedProvider ?? connectedProvider;
   }
 
   onMount(async () => {
