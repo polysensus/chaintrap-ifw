@@ -43,35 +43,31 @@ let component;
 let props;
 
 $: {
-  const selected = updateSelected(selectedChoiceType);
-  component = selected?.furnitureType?.component;
-  props = {...selected?.props}
-  if (selected){
-    
-  }
+  const prepared = prepareChoiceComponent(selectedChoiceType);
+  component = prepared?.component;
+  props = prepared?.props;
 }
 
-function updateSelected(selectedChoiceType) {
-  let selected = undefined;
+function prepareChoiceComponent(selectedChoiceType) {
 
   for (const c of furnitureComponents) {
     if (c.choiceType !== selectedChoiceType)
       continue
 
-    selected = {
-      furnitureType: c,
-      props: {...c.props}
-    }
-    switch (selected.furnitureType.choiceType) {
+    let component = c.component;
+    let props = {...c.props};
+    switch (c.choiceType) {
       case "open_chest": {
-        selected.props.chestType = furnishing.type ?? chestTypes?.[0].type
+        props.chestType = furnishing.type ?? chestTypes?.[0].type
         break;
       }
     }
-    break;
+    log.info(`type: ${c?.choiceType}, props: ${JSON.stringify(props)}`);
+    return {
+      component,
+      props
+    }
   }
-  log.info(`type: ${selected?.furnitureType?.choiceType}, props: ${JSON.stringify(selected.props)}`)
-  return selected;
 }
 
 // --- component state properties
