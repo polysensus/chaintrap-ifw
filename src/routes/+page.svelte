@@ -1,5 +1,6 @@
 <script>
   // framework imports
+  import { localStorageStore } from '@skeletonlabs/skeleton';
   import { onMount, onDestroy, setContext, getContext } from 'svelte';
   import { derived } from 'svelte/store';
 
@@ -33,6 +34,11 @@
    */
   export let data; // see +page.js:load
   setContext('data', data);
+
+  let pageState = localStorageStore('root:', {trialCreationStep:0});
+  let trialCreationStep = $pageState?.trialCreationStep ?? 0;
+
+  $: pageState.set({trialCreationStep: trialCreationStep !== 0 ? trialCreationStep - 1 : 0});
 
   // --- stores for dungeon creation
   /** @type {{connect:Function,subscribe:Function,add:Function}|undefined}*/
@@ -106,11 +112,13 @@
     if (trialdb)
       trialdb.close();
     trialdb = undefined;
-  })
+    pageState.set({trialCreationStep: trialCreationStep !== 0 ? trialCreationStep - 1 : 0});
+  });
+
 </script>
 <div class="container h-full mx-auto flex justify-center">
 	<div class="space-y-2 text-center flex flex-col">
     <!-- <h2 class="h2">Welcome to Chaintrap.</h2> -->
-    <TrialCreateStepper />
+    <TrialCreateStepper bind:step={trialCreationStep}/>
 	</div>
 </div>

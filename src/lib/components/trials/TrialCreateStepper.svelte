@@ -15,7 +15,7 @@
 
   // application components
 
-  import { Stepper, Step, clipboard } from '@skeletonlabs/skeleton';
+  import { Stepper, Step } from '@skeletonlabs/skeleton';
   import { ProgressRadial } from '@skeletonlabs/skeleton';
 
   // import PageGameIconGenerator from '$lib/components/creator/PageGameIconGenerator.svelte';
@@ -28,11 +28,10 @@
 
   import { findOwnedGames } from '$lib/chaintrap.js';
 
-  /** @type {ImageGeneratorOpenAI} */
-  let imageGenerator;
-
   const ownedGamesHistory = 5;
 
+  /** @type {number|undefined}*/
+  export let step = 0;
 
   // contexts
   const presence = getContext('presence');
@@ -47,10 +46,13 @@
     if (!$arena) return undefined;
     return new EventParser($arena, ArenaEvent.fromParsedEvent);
   });
+
+  // ---
   let ownedEntries = [];
   $: refreshOwnedEntries($eventParser);
 
-  // ---
+  /** @type {ImageGeneratorOpenAI} */
+  let imageGenerator;
   let connected = false;
   let trialDescription = "This is my dungeon, there are many like it, but this one is mine.";
   let trialMaxParticipants = 2;
@@ -59,10 +61,6 @@
   let trialDetails;
 
   // --- display state
-
-  /** @type {number|undefined}*/
-  let step = 0;
-
   let showPreview = false;
   $: showPreview = (step && (step >= 1) && (step <= 3)) ? true : false;
 
@@ -145,6 +143,7 @@
 
   // --- svelte lifecycle callbacks
   onMount(async () => {
+    console.log(`COMPONENT MOUNT STEP: ${step}`);
     imageGenerator = new ImageGeneratorOpenAI(fetch, `${data?.request?.origin}/api/openai/images/generation`);
     chain = presence?.providerSwitch?.getCurrent()?.cfg?.name;
     console.log(`TrialCreateStepper# onMount: chain: ${chain}`);
@@ -237,7 +236,6 @@
 	</Step>
 	<!-- ... -->
 </Stepper>
-<p>step: {step}</p>
 {#if (step===1)}
   {#if trialPosterImg}
     <img src={trialPosterImg} class="bg-black/50 w-full aspect-[1/1]" alt="Trial Poster" /> 
