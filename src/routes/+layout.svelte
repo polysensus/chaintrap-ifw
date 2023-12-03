@@ -2,7 +2,7 @@
 	import '../app.postcss';
 
   // framework imports
-  import { twMerge } from 'tailwind-merge';
+  import { page } from '$app/stores';
   import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
   import { clipboard } from '@skeletonlabs/skeleton';
   import { storePopup } from '@skeletonlabs/skeleton';
@@ -52,10 +52,28 @@
     return address.slice(0, 6) + sep + address.slice(address.length -2)
   }
 
+  function atRoot(page) {
+    let path = page?.url?.pathname;
+    if (!path) return false;
+    if (path.endsWith('/')) path = path.slice(0, path.length - 1);
+    if (path.length !== 0) return false;
+    return true;
+  }
+
   // state vars
   let providerButtonText;
   let providerButtonClass = 'btn variant-filled';
   $: providerButtonClass = $arena ? 'btn variant-ringed xl' : 'btn variant-filled xl';
+
+  const polysensusURL = "https://www.polysensus.com";
+  const polysensusText = "Polysensus";
+  const chaintrapText = "Chaintrap";
+  let homeRef;
+  $: homeRef = atRoot($page) ? polysensusURL : (new URL("/", $page?.url)).toString();
+  let homeText;
+  $: homeText = atRoot($page) ? polysensusText : chaintrapText;
+  let homeTarget;
+  $: homeTarget = atRoot($page) ? "_blank" : "_self";
 
 </script>
 
@@ -67,7 +85,7 @@
 			<svelte:fragment slot="lead">
         <img src="/apple-icon-120x120-white.png" class="mr-3 h-6 sm:h-9" alt="Polysensus Logo" />
         <span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white"
-          ><a href="https://www.polysensus.com" target="_blank"><strong class="text-xl uppercase">Polysensus</strong></a></span
+          ><a href={homeRef} target={homeTarget}><strong class="text-xl uppercase">{homeText}</strong></a></span
         >
 
 			</svelte:fragment>
