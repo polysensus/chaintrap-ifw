@@ -30,7 +30,7 @@ let exitCounts = [0, 0, 0, 0]; // a count for each side
 let data = {side:0, exit:0};
 
 $: exitCounts = props?.exitCounts;
-$: data = props?.data ?? {side:0, exit:0};
+$: data = props?.data ?? {side:0, exit: exitCounts[0]};
 
 /**
  * 
