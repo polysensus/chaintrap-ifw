@@ -1,10 +1,9 @@
-import { getContext } from 'svelte'
+import { getContext } from 'svelte';
 
 /**
  * Must be created at page scope (calls svelte getContext)
  */
 export class GuardianCommandCtx {
-
   constructor() {
     this.map = this.furnishings = this.trialPoster = this.guardian = undefined;
     this.metadataURL = '/api/nftstorage/metadata';
@@ -12,22 +11,20 @@ export class GuardianCommandCtx {
     let s = undefined;
 
     s = getContext('map');
-    if (s) s.subscribe((value)=>this.map = value);
+    if (s) s.subscribe((value) => (this.map = value));
 
     s = getContext('furnishings');
-    if (s)
-      s.subscribe((value)=>this.furnishings = value);
+    if (s) s.subscribe((value) => (this.furnishings = value));
 
     s = getContext('trialPoster');
-    if (s)
-      s.subscribe((value)=>this.trialPoster = value);
+    if (s) s.subscribe((value) => (this.trialPoster = value));
 
-    getContext('guardian').subscribe((value)=>this.guardian = value);
+    getContext('guardian').subscribe((value) => (this.guardian = value));
   }
 
   /**
-   * 
-   * @param {import('../console/completion.js').MatchResult} result 
+   *
+   * @param {import('../console/completion.js').MatchResult} result
    */
   async exec(result) {
     throw new Error('not implemented error');

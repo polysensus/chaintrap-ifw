@@ -19,6 +19,7 @@ export class CommandCompletions {
   static start_game = "start game";
   static use_exit = "use exit";
   static open_chest = "open chest";
+  static narrate = "narrate";
 
   /** @type {Object.<string, Function>} */
   static completionFactories = {
@@ -38,11 +39,15 @@ export class CommandCompletions {
       {phrase:'start game', prefix:'start game'}),
 
     "use exit": () => new Completion(
-      {phrase:'use exit \{${number}\} on \{${side}\}', prefix:'use exit'},
-      new NumberMatcher("number"), new SideMatcher("side")),
+      {phrase:'use exit \{${exitNumber}\} on \{${side}\}', prefix:'use exit'},
+      new NumberMatcher("exitNumber"), new SideMatcher("side")),
 
     "open chest": () => new Completion(
       {phrase:'open chest \{${number}\}', prefix:'open chest'},
       new NumberMatcher("number")),
+
+    // TODO: add a {prompt} field to be used for narrative generation
+    "narrate": () => new Completion(
+      {phrase:'narrate', prefix:'narrate'}),
   }
 }

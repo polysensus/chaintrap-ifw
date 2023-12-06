@@ -30,7 +30,7 @@
   let arena = writable(undefined);
   setContext('arena', arena);
 
-  const presence = new ChainPresence({ networks: all });
+  const presence = new ChainPresence({ networks: all, hardhatWalletCount: 3 });
   setContext('presence', presence);
 
   const walletAddress = derived(arena, async ($arena, set) => {

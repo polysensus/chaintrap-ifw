@@ -1,13 +1,11 @@
-// a view of the journal from the perspective of a single trialist
+// a view of the journal from the perspective of the trialists
 import { derived } from "svelte/store";
+import { Trialist } from "@polysensus/chaintrap-arenastate";
 
-export class JournalEntry {
-
-}
-
-export function newTrialistJournal(trialist) {
-
-  return derived(trialist, ($trialist, set) => {
-
+export function newTrialistJournal(eventDispatcher, updatedCallback = undefined) {
+  return derived(eventDispatcher, ($eventDispatcher) => {
+    if (!$eventDispatcher) return undefined;
+    return new Trialist($eventDispatcher.parser, {
+      dispatcher:$eventDispatcher, updated:updatedCallback})
   });
 }

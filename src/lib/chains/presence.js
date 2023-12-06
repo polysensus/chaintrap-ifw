@@ -94,9 +94,28 @@ export class ChainPresence {
       console.log(`ChainPresence# refreshProviders api/web3auth: ${JSON.stringify(web3auth)}`);
       return web3auth;
     };
+    const networks = [];
+    for (const cfg of Object.values(this.cfg.networks)) {
+      // make the first id the same as the name, so we only get -{n} suffices on
+      // providers we explicitly configure that way.
+      networks.push({...cfg, id:`${cfg.name}`})
+      if (cfg.name !== 'hardhat' || (this.cfg.hardhatWalletCount ?? 0) < 1)
+        continue
+
+      console.log(`adding ${this.cfg.hardhatWalletCount - 1} hardhat wallets`)
+      let first = this.cfg.hardhatWalletFirst ?? 1;
+      // remember addressOrIndex defaults to 0 so we automatically get at least one
+      for (let i=0; i < this.cfg.hardhatWalletCount - 1; i++)
+        networks.push({...cfg,addressOrIndex:first+i, id:`${cfg.name}/${first+i}`})
+    }
+
+    const cfgs = {}
+    for (const cfg of networks)
+      cfgs[cfg.id] = cfg;
 
     await this.providerSwitch.prepare(
-      this.cfg.networks,
+      // this.cfg.networks,
+      cfgs,
       (cfg) => {
         console.log(`preparing: ${cfg.name}`);
         if (cfg.type.startsWith('web3auth')) {
