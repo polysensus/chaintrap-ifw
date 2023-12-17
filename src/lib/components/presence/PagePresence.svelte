@@ -12,7 +12,7 @@
 
   let providers;
   let selected;
-  let lastName = undefined;
+  let lastID = undefined;
 
   const data = getContext('data');
   const presence = getContext('presence');
@@ -21,16 +21,16 @@
   async function providerSelected(event) {
     console.log(`PagePresence# event.detail ${JSON.stringify(event)}`);
 
-    if (!event.detail || event.detail.name === lastName) {
-      console.log(`PagePresence# logout ${lastName}`);
+    if (!event.detail || event.detail.id === lastID) {
+      console.log(`PagePresence# logout ${lastID}`);
       presence.logout();
-      lastName = undefined;
+      lastID = undefined;
       await arena.set(undefined);
       selected = undefined;
       return;
     }
 
-    await presence.selectProvider(event.detail.name);
+    await presence.selectProvider(event.detail.id);
     await connectCurrent();
   }
 
@@ -44,28 +44,27 @@
 
     const address = data.arenaAddress[current.cfg.name];
     if (!address) {
-      console.log(`PagePresence# no address for provider config: ${current.cfg.name} ${JSON.stringify(data.arenaAddress)}`);
+      console.log(`PagePresence# no address for provider config: ${current.cfg.id} ${JSON.stringify(data.arenaAddress)}`);
       return;
     }
     $arena = arenaConnect(address, current.signer)
-    lastName = current.cfg.name;
-
+    lastID = current.cfg.id;
   }
 
   async function refreshConnectedProvider() {
     if (!presence?.providerSwitch) return;
     console.log(`PagePresence# refreshing login status`);
     const connectedName = await presence.providerSwitch.refreshLoginStatus(true);
-    const routedName = namedProviderRoute($page);
-    if (!(connectedName || routedName)) return;
+    const routedID = namedProviderRoute($page);
+    if (!(connectedName || routedID)) return;
 
     // The web3auth provider remains connected until explicitly logged out. But
     // we want to prefer the routed provider for the presence selection
     let routedProvider, connectedProvider;
     for (const p of providers) {
-      if (routedName && !routedProvider && p.name === routedName) routedProvider = p;
-      if (!connectedProvider && p.name === connectedName) connectedProvider = p;
-      if (connectedProvider && (!routedName || routedProvider)) break;
+      if (routedID && !routedProvider && p.id === routedID) routedProvider = p;
+      if (!connectedProvider && p.id === connectedName) connectedProvider = p;
+      if (connectedProvider && (!routedID || routedProvider)) break;
     }
     return routedProvider ?? connectedProvider;
   }

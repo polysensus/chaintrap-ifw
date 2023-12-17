@@ -124,8 +124,10 @@
 
   async function refreshOwnedEntries(eventParser) {
     if (!eventParser) return;
-    const chainName = presence?.providerSwitch?.getCurrent()?.cfg?.name;
+    const cfg = presence?.providerSwitch?.getCurrent()?.cfg;
+    const chainName = cfg?.name;
     if (!chainName) return;
+    // let chainPath = chainName === cfg.id ? `${chainName}/default` : cfg.id;
 
     const entries = [];
 
@@ -134,8 +136,8 @@
       entries.push({
         gameToken: gid.toHexString(),
         gameNumber: gameInstance(gid),
-        operatorUrl:`/trial/guardian/${gameInstance(gid)}/${chainName}`,
-        trialistUrl:`/trial/trialist/${gameInstance(gid)}/${chainName}`
+        narratingUrl:`/trial/narrating/${gameInstance(gid)}/${chainName}`,
+        raidingUrl:`/trial/raiding/${gameInstance(gid)}/${chainName}`
       });
     }
     ownedEntries = entries;
@@ -218,15 +220,15 @@
 				<a
           data-sveltekit-preload-data="tap"
 					class="btn btn-sm variant-ghost-surface"
-					href={owned.operatorUrl}
+					href={owned.narratingUrl}
 				>
-         Operate
+         Narrate
 				</a>
 				<a
           data-sveltekit-preload-data="tap"
-					href={owned.trialistUrl}
+					href={owned.raidingUrl}
 				>
-         Participate
+          Raid 
 				</a>
 
       </li>

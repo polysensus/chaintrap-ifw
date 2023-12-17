@@ -4,11 +4,19 @@ export function namedProviderRoute(page) {
   if (typeof page?.url?.pathname !== "string") return undefined;
 
   const segments = page.url.pathname.split("/");
-  const candidate = segments.pop();
-  if (typeof candidate === 'undefined') return undefined;
 
+  // syntax:
+  // a) path/provider/addressOrIndex
+  // b) path/provider
+  let addressOrIndex;
+  let candidate = segments.pop();
+  if (typeof candidate === 'undefined')  return;
   if (candidate in all) return candidate;
-
+  addressOrIndex = candidate;
+  candidate = segments.pop();
+  if (typeof candidate === 'undefined')  return;
+  // note: for providers that don't support account selection addressOrIndex will be 'default'
+  if (candidate in all) return `${candidate}/${addressOrIndex}`;
   return undefined;
 }
 

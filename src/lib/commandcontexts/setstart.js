@@ -35,7 +35,9 @@ export class SetStartCommandCtx extends GuardianCommandCtx {
 
     const gidHex = this.gid.toHexString();
 
-    console.log(Object.keys(this.guardian.journal?.transcripts))
+    console.log(Object.keys(this.guardian.journal?.transcripts));
+
+    const trial = this.guardian.trials[gidHex];
 
     const roster = this.guardian.journal?.transcripts[gidHex];
     if (!roster) {
@@ -61,7 +63,7 @@ export class SetStartCommandCtx extends GuardianCommandCtx {
     }
 
     const location = result.values.location;
-    if (location > this.guardian.topology.locations.length) {
+    if (location > trial.topology.locations.length) {
       this.result = {
         ok: false,
         disposition: `location ${location} not found`

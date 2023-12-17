@@ -7,6 +7,7 @@ import { UseExitCommandCtx } from '$lib/commandcontexts/useexit.js';
 import { OpenChestCommandCtx } from '$lib/commandcontexts/openchest.js';
 import { SetStartCommandCtx } from '$lib/commandcontexts/setstart.js';
 import { StartGameCommandCtx } from '$lib/commandcontexts/startgame.js';
+import { NarrateCommandCtx } from '$lib/commandcontexts/narrate.js';
 
 /**
  * Create a command set for a dungeon builder 
@@ -43,6 +44,12 @@ export function createGuardianCommands({gid}) {
     cmd.exec.bind(cmd)
   );
 
+  cmd = new NarrateCommandCtx(cmd, {gid});
+  commands.append(
+    CommandCompletions.get(CommandCompletions.narrate),
+    cmd.exec.bind(cmd)
+  );
+
   return commands;
 }
 
@@ -62,7 +69,6 @@ export function createTrialistCommands({gid}) {
     CommandCompletions.get(CommandCompletions.use_exit),
     cmd.exec.bind(cmd)
   );
-
 
   // open chest
   cmd = new OpenChestCommandCtx({gid})

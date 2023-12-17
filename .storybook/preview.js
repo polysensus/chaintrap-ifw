@@ -1,6 +1,7 @@
 /** @type { import('@storybook/svelte').Preview } */
 
 import '../src/app.postcss';
+import '../node_modules/tailwindcss/tailwind.css';
 
 const preview = {
   parameters: {

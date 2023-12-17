@@ -29,10 +29,12 @@ export class UseExitCommandCtx extends TrialistCommandCtx {
       console.log(`trialist not ready`);
       return;
     }
-    const side = result?.values?.side;
-    const exit = result?.values?.exit;
+    let side = result?.values?.side;
+    side = {north:0, west:1, south:2, east:3}[side.toLowerCase()];
+    const exit = result?.values?.exitNumber;
     if (typeof side === 'undefined' || typeof exit === 'undefined')
       throw new Error(`side ${side} or exit ${exit} not found in command`);
+
     const txr = await this.trialist.commitLocationChoice(this.gid, side, exit);
     this.result = {choice:side, menu:exit, ...txr};
     return this.result;

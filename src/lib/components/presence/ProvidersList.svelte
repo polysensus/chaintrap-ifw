@@ -1,5 +1,5 @@
 <script>
-  import { onMount, onDestroy, createEventDispatcher } from 'svelte';
+  import { createEventDispatcher } from 'svelte';
   import { popup } from '@skeletonlabs/skeleton';
   import { ListBox, ListBoxItem } from '@skeletonlabs/skeleton';
 
@@ -57,7 +57,7 @@
     <ListBoxItem bind:group={selected} name="medium" value={item} on:click={(event) => onClick(event, item)}>
 		<div class="flex flex-row">
 			<span class="badge bg-primary-500">{item.chainId}</span>
-      <span class="px-1.5">{item.name}</span>
+      <span class="px-1.5">{item.id}</span>
     </div>
     </ListBoxItem>
     {/each}
