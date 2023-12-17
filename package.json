@@ -2,7 +2,7 @@
   "name": "chaintrap-ifw",
   "version": "0.0.1",
   "engines": {
-    "node": "=18.17.1",
+    "node": "=18.18.2",
     "npm": "=9.6.1"
   },
   "private": true,
