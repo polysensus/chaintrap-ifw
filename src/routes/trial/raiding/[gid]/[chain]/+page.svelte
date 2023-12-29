@@ -104,7 +104,7 @@
     // XXX: TODO the blob passwords are going to need to be plumbed in.
     // We want to allow for:
     // 1. fully encrypted dungeons, both the map and the furnishings are invisible to the trialist
-    // 2. partially encypted, the map is visible but the furnishings remain secret.
+    // 2. partially encrypted, the map is visible but the furnishings remain secret.
 
     codex = await BlobCodex.hydrate(
       metadata?.properties?.trialsetup?.serialized, [null], CODEX_INDEXED_ITEMS);

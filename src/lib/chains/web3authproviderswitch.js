@@ -35,7 +35,7 @@ export class Web3AuthModalProviderSwitch extends Web3AuthModalProviderSwitchAbst
   /**
    * Call after init to determine the current status
    * 
-   * Useful for initialising logged in / connected states without triggering
+   * Useful for initializing logged in / connected states without triggering
    * modal
    */
   async refreshLoginStatus(selectIfConnected=false) {
