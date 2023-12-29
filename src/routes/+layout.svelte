@@ -8,7 +8,7 @@
   import { storePopup } from '@skeletonlabs/skeleton';
   storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
-  import { setContext } from 'svelte';
+  import { onMount, setContext } from 'svelte';
   import { get, writable, derived } from 'svelte/store';
 
   // framework components
@@ -69,11 +69,18 @@
   const polysensusText = "Polysensus";
   const chaintrapText = "Chaintrap";
   let homeRef;
-  $: homeRef = atRoot($page) ? polysensusURL : (new URL("/", $page?.url)).toString();
+  // $: homeRef = atRoot($page) ? polysensusURL : (new URL("/", $page?.url)).toString();
   let homeText;
-  $: homeText = atRoot($page) ? polysensusText : chaintrapText;
+  // $: homeText = atRoot($page) ? polysensusText : chaintrapText;
   let homeTarget;
-  $: homeTarget = atRoot($page) ? "_blank" : "_self";
+  // $: homeTarget = atRoot($page) ? "_blank" : "_self";
+
+
+  onMount(async () => {
+    homeRef = atRoot($page) ? polysensusURL : (new URL("/", $page?.url)).toString();
+    homeText = atRoot($page) ? polysensusText : chaintrapText;
+    homeTarget = atRoot($page) ? "_blank" : "_self";
+  })
 
 </script>
 

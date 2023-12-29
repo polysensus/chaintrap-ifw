@@ -35,7 +35,7 @@ export async function GET({fetch, params}) {
 
   resp = await fetch(...ipfsFetchArgs(url));
   if (!resp.ok)
-    throw error(resp.status, {message:`bad status ${resp.statusText} for metadataUrl ${args[0]}`});
+    throw error(resp.status, {message:`bad status ${resp.statusText} for metadataUrl ${params[0]}`});
 
   const metadata = await resp.json();
   console.log('got metadata');
