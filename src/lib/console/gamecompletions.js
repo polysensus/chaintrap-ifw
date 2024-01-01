@@ -42,6 +42,10 @@ export class CommandCompletions {
       {phrase:'use exit \{${exitNumber}\} on \{${side}\}', prefix:'use exit'},
       new NumberMatcher("exitNumber"), new SideMatcher("side")),
 
+    "leave by": () => new Completion(
+      {phrase:'leave by the \{${side}\} exit', prefix:'leave by'},
+      new SideMatcher("side")),
+
     "open chest": () => new Completion(
       {phrase:'open chest \{${number}\}', prefix:'open chest'},
       new NumberMatcher("number")),

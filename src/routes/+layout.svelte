@@ -34,11 +34,14 @@
   setContext('presence', presence);
 
   const walletAddress = derived(arena, async ($arena, set) => {
+    console.log(`+layout.svelte# walletAddress store: arena changing`);
     if (!$arena) {
+      console.log(`+layout.svelte# walletAddress store: arena undefined`);
       set(undefined);
       return;
     }
     const address = await $arena?.signer?.getAddress();
+    console.log(`+layout.svelte# walletAddress store: arena ${address}`);
     set(address);
   });
   setContext('walletAddress', walletAddress);
@@ -77,9 +80,13 @@
 
 
   onMount(async () => {
-    homeRef = atRoot($page) ? polysensusURL : (new URL("/", $page?.url)).toString();
-    homeText = atRoot($page) ? polysensusText : chaintrapText;
-    homeTarget = atRoot($page) ? "_blank" : "_self";
+    homeRef = derived(page, ($page) => {
+      return atRoot($page) ? polysensusURL : (new URL("/", $page?.url)).toString();
+    });
+
+    // homeRef = atRoot($page) ? polysensusURL : (new URL("/", $page?.url)).toString();
+    homeText = derived(page, ($page) => atRoot($page) ? polysensusText : chaintrapText);
+    homeTarget = derived(page, ($page) => atRoot($page) ? "_blank" : "_self");
   })
 
 </script>
@@ -92,12 +99,16 @@
 			<svelte:fragment slot="lead">
         <img src="/apple-icon-120x120-white.png" class="mr-3 h-6 sm:h-9" alt="Polysensus Logo" />
         <span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white"
-          ><a href={homeRef} target={homeTarget}><strong class="text-xl uppercase">{homeText}</strong></a></span
+          >
+          {#if (homeRef && homeText && homeTarget)}
+          <a href={$homeRef} target={$homeTarget}><strong class="text-xl uppercase">{$homeText}</strong></a>
+          {/if}
+          </span
         >
 
 			</svelte:fragment>
 			<svelte:fragment slot="trail">
-        <PagePresence bind:providerButtonText={providerButtonText} />
+        <PagePresence />
         {#if !$walletAddress}
 				<a
 					class="btn btn-sm variant-ghost-surface"

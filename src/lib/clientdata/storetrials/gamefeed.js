@@ -19,18 +19,15 @@ export function newFeed(journal, gid, options) {
 
       update((ordered)=>{
 
-        console.log(`LIFO(${typeof options.lifo ==='undefined' ||options.lifo}) ${updatedGid?.toHexString()} ${key} ${eid} ${arenaEvent.subject}`);
+        // console.log(`FEED ITEM(${arenaEvent.name}) ${updatedGid?.toHexString()} ${key} ${eid} ${arenaEvent.subject}`);
 
         const { limit } = options;
 
         for (const entry of ordered)
-          if (entryCompare({eid, arenaEvent}, entry) === 0)
+          if (logCompare(arenaEvent.log, entry.arenaEvent.log) === 0)
             return ordered;
 
         const gidHex = updatedGid.toHexString();
-
-        if (arenaEvent.name === ABIName.TranscriptEntryChoices && !state)
-          throw new Error('wtaf');
 
         // build the new entry
         let entry;
@@ -47,9 +44,9 @@ export function newFeed(journal, gid, options) {
         ordered.push(entry);
 
         if (typeof options?.lifo == 'undefined' || options?.lifo)
-          ordered = ordered.sort((a, b) => entryCompare(a, b))
+          ordered = ordered.sort((a, b) => logCompare(a.arenaEvent.log, b.arenaEvent.log))
         else
-          ordered = ordered.sort((a, b) => entryCompare(b, a))
+          ordered = ordered.sort((a, b) => logCompare(b.arenaEvent.log, a.arenaEvent.log))
         // if (typeof options?.lifo == 'undefined' || options?.lifo)
         //   ordered.reverse();
         if (typeof limit !== 'undefined')
@@ -63,30 +60,12 @@ export function newFeed(journal, gid, options) {
   }
 }
 
-function entryCompare(a, b) {
-  return logCompare(a.arenaEvent.log, b.arenaEvent.log);
-  // If neither are game progress events OR if they are the eid 0 start choices
-  if (!a.eid && !b.eid)
-    return logCompare(a.arenaEvent.log, b.arenaEvent.log);
-  // if both are game progress events
-  if (a.eid && b.eid)
-    return Number(a.eid) - Number(b.eid);
-
-  // Otherwise, the game progress events are > all game setup events
-  if (a.eid && !b.eid)
-    return 1; // a > b
-  if (!a.eid && b.eid)
-    return -1; // a < b
-
-  throw new Error(`entryCompare can't compare ${typeof a} to ${typeof b}`);
-}
-
 function logCompare(a, b) {
   // console.log(`logCompare# ${a.blockNumber} ${a.logIndex} vs ${b.blockNumber} ${b.logIndex}`);
-  let result = a.blockNumber - b.blockNumber;
+  let result = Number(a.blockNumber) - Number(b.blockNumber);
   if (result !== 0)
     return result;
-  return a.logIndex - b.logIndex;
+  return Number(a.logIndex) - Number(b.logIndex);
 }
 
 /**
