@@ -6,6 +6,7 @@ import {
 
 export function newEventDispatcher(eventParser) {
   return derived(eventParser, ($eventParser, set) => {
+    console.log(`eventdispatcher.js# newEventDispatcher eventDispatcher changed`);
     if (!$eventParser)  {
       set(undefined);
       return undefined;

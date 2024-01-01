@@ -8,8 +8,6 @@
   import ProvidersList from '$lib/components/presence/ProvidersList.svelte';
   import { namedProviderRoute } from '$lib/chains/supportedproviders.js';
 
-  export let providerButtonText = '';
-
   let providers;
   let selected;
   let lastID = undefined;
@@ -19,7 +17,7 @@
   const arena = getContext('arena');
 
   async function providerSelected(event) {
-    console.log(`PagePresence# event.detail ${JSON.stringify(event)}`);
+    console.log(`PagePresence# ${event?.detail?.id} event.detail ${JSON.stringify(event)}`);
 
     if (!event.detail || event.detail.id === lastID) {
       console.log(`PagePresence# logout ${lastID}`);
@@ -31,7 +29,8 @@
     }
 
     await presence.selectProvider(event.detail.id);
-    await connectCurrent();
+    selected = await connectCurrent();
+    console.log(`PagePresence# selected ${selected?.id}`);
   }
 
   async function connectCurrent() {
@@ -47,8 +46,10 @@
       console.log(`PagePresence# no address for provider config: ${current.cfg.id} ${JSON.stringify(data.arenaAddress)}`);
       return;
     }
-    $arena = arenaConnect(address, current.signer)
+    arena.set(arenaConnect(address, current.signer));
     lastID = current.cfg.id;
+    console.log(`PagePresence# current ${lastID} @${address}`);
+    return current.cfg;
   }
 
   async function refreshConnectedProvider() {
@@ -75,8 +76,8 @@
     // Note: we have to do this because we are using web3auth in re-direct mode
     // (for maximum mobile compat). which means we lose state when we redirect &
     // callback
-    selected = await refreshConnectedProvider()
-    await connectCurrent();
+    await refreshConnectedProvider()
+    selected = await connectCurrent();
   });
 </script>
 <ProvidersList on:providerSelected={providerSelected} {providers} bind:selected={selected}>

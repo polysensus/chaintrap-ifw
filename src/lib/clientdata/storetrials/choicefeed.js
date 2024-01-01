@@ -29,7 +29,7 @@ export function newChoiceFeed(feed, walletAddress, opts) {
   return derived([feed, walletAddress], ([$feed, $walletAddress]) => {
     if (!($feed && $walletAddress)) return undefined;
 
-    log.debug(`feedLIFO(${opts?.feedLIFO}) choicefeed# updating for feed.length ${$feed.length}`)
+    // log.debug(`feedLIFO(${opts?.feedLIFO}) choicefeed# updating for feed.length ${$feed.length}`)
 
     let addressFeeds = {};
 
@@ -59,16 +59,15 @@ export function newChoiceFeed(feed, walletAddress, opts) {
           for (let input of feedEntry.state.choices)
             choices.push(input.map((hex) => parseInt(hex, 16)));
 
-          ent.eid = feedEntry.eid; // the eid is the same for choices, committed & outcome
           // ent.location = parseInt(feedEntry.arenaEvent.update.location[0]);
           // console.log(`choice location: ${feedEntry.arenaEvent.update.location} ${JSON.stringify(feedEntry.arenaEvent.update.location)} ${ent.location}`);
           ent.scene = feedEntry.arenaEvent.update.scene;
           ent.location = parseInt(ent.state.location[0], 16);
           ent.choices = choices;
-          console.log(`NEW CHOICES: ${JSON.stringify(choices)}`);
+          // console.log(`NEW CHOICES: ${JSON.stringify(choices)}`);
           ent.arenaEvents.choices = feedEntry;
 
-          console.log(`++++++ [${feedEntry.eid} @${ent.address}] Outcome Choices for ${ent.state.nickname} at ${ent.location}`);
+          // console.log(`++++++ [${feedEntry.eid} @${ent.address}] Outcome Choices for ${ent.state.nickname} at ${ent.location}`);
 
           break;
         }
@@ -78,13 +77,18 @@ export function newChoiceFeed(feed, walletAddress, opts) {
 
           ent.arenaEvents.committed = feedEntry;
 
-          console.log(`----- [${feedEntry.eid} @${ent.address}] Committed for ${feedEntry.state?.nickname} ${ent.state.nickname} at ${ent.state.location[0]}`);
+          // console.log(`----- [${feedEntry.eid} @${ent.address}] Committed for ${feedEntry.state?.nickname} ${ent.state.nickname} at ${ent.state.location[0]}`);
           break;
         }
         case ABIName.TranscriptEntryOutcome: {
           ent.arenaEvents.outcome = feedEntry;
 
-          console.log(`----- [${feedEntry.eid} @${ent.address}] Outcome for ${feedEntry.state?.nickname} ${ent.state.nickname} at ${ent.state.location[0]}`);
+          // console.log(`----- [${feedEntry.eid} @${ent.address}] Outcome for ${feedEntry.state?.nickname} ${ent.state.nickname} at ${ent.state.location[0]}`);
+          break;
+        }
+        case ABIName.TranscriptParticipantHalted: {
+          ent.halted = true;
+          // console.log(`----- [${feedEntry.eid} @${ent.address}] ${feedEntry.state?.nickname} halted at ${ent.state.location[0]}`);
           break;
         }
       }
@@ -93,9 +97,25 @@ export function newChoiceFeed(feed, walletAddress, opts) {
       addressFeeds[feedEntry.address] = choiceFeed;
     }
 
+    let createdEntry;
+    let victoryTransfer;
+    let uriEntry;
+
     // for (let feedEntry of (opts?.feedLIFO ? $feed.toReversed() : $feed)) {
-    for (let feedEntry of $feed)
+    for (let feedEntry of $feed) {
+
+      if (feedEntry.arenaEvent.name === ABIName.TranscriptCreated)
+        createdEntry = feedEntry;
+      else if (feedEntry.arenaEvent.name === ABIName.URI)
+        uriEntry = feedEntry;
+      else if (feedEntry.arenaEvent.name === ABIName.TransferSingle && !feedEntry.arenaEvent.mint) {
+        victoryTransfer = feedEntry;
+        continue;
+      }
       addEntry(feedEntry);
+    }
+
+    let victoryEntry;
 
     let entries = [];
     for (let choiceFeed of Object.values(addressFeeds)) {
@@ -111,6 +131,7 @@ export function newChoiceFeed(feed, walletAddress, opts) {
         if (!choiceFeed[eid - 1]) continue;
 
         let cur = choiceFeed[eid];
+
         // let prev = choiceFeed[eid -1];
 
         // any choice context that has a successor is complete by definition
@@ -121,14 +142,29 @@ export function newChoiceFeed(feed, walletAddress, opts) {
         cur.status = STATUS_PENDING;
         if (typeof cur?.arenaEvents?.committed !== 'undefined')
           cur.status = STATUS_COMMITTED;
-        if (typeof cur?.arenaEvents?.outcome !== 'undefined')
+
+        const outcome = cur?.arenaEvents?.outcome?.arenaEvent;
+        if (typeof outcome !== 'undefined')
           cur.status = STATUS_VERIFIED;
 
+        // if the victory transfer event was emitted in the same transaction as
+        // the outcome of cur, then cur is the entry associated with the
+        // victory. Due to how eid's are allocated uniquely to participant
+        // moves, this also means the subject of cur is the victor. But we check
+        // explicitly none the less.
+        if (cur.status === STATUS_VERIFIED && victoryTransfer && victoryTransfer?.arenaEvent?.subject === outcome.subject) {
+          if (
+            victoryTransfer.arenaEvent.log.blockNumber === outcome.log.blockNumber
+            && victoryTransfer.arenaEvent.log.transactionIndex === outcome.log.transactionIndex) {
+            cur.arenaEvents.victory = victoryTransfer;
+            victoryEntry = cur;
+          }
+        }
         entries.push(cur);
       }
    }
 
-    entries.sort((a, b) => a.eid.toNumber() - b.eid.toNumber());
+    entries.sort((a, b) => a.eid - b.eid);
 
     // deal with the guardian declared start states, which all have the pseudo eid 0
     for (let [address, choiceFeed] of Object.entries(addressFeeds)) {
@@ -146,6 +182,6 @@ export function newChoiceFeed(feed, walletAddress, opts) {
       entries.reverse();
 
     log.debug(`choicefeed# num entries ${entries.length}`);
-    return {trial:entries, trialists: addressFeeds};
+    return {trial:entries, trialists: addressFeeds, victoryEntry, createdEntry, uriEntry};
   });
 }

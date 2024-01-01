@@ -7,6 +7,7 @@
 
   import TrialistAvatarStatusBadge from '$lib/components/avatars/TrialistAvatarStatusBadge.svelte';
   import TrialistChoiceEntryCard from "$lib/components/trials/TrialistChoiceEntryCard.svelte";
+  import SceneChoices from "$lib/components/trials/SceneChoices.svelte";
 
   import PreviewMapCard from '$lib/components/creator/PreviewMapCard.svelte';
   import PageGameCommands from '$lib/components/PageGameCommands.svelte';
@@ -79,13 +80,12 @@
     if (len)
       activeRaider = trialistEntries[$walletAddress][len - 1];
   }
+  $: finalEntry = $trialFeeds?.victoryEntry;
+  $: uriEntry = $trialFeeds?.uriEntry;
+  $: metadataURI = uriEntry?.arenaEvent?.parsedLog?.args[0];
 
   async function handleUpdate(updatedGid, eid, key, arenaEvent, state) {
     await feed.handleEvent(updatedGid, eid, key, arenaEvent, state);
-  }
-
-  function isTrialist(entry) {
-    return ($walletAddress && entry?.address === $walletAddress);
   }
 
   let codex;
@@ -119,20 +119,8 @@
 -->
 <div class="w-full grid grid-cols-1 gap-10">
 <div class="h-full grid grid-rows-[1fr_auto] gap-1">
-  {#if activeRaider}
-  <div class="grid grid-cols-[1fr_auto] gap-2">
-    <div class="card p-4 rounded-tr-none space-y-2">
-      <header class="flex justify-between items-center">
-        <p class="font-bold">Raider {activeRaider?.nickname}</p>
-        <small class="opacity-50">{activeRaider?.eid}</small>
-      </header>
-      {#if activeRaider?.choices}
-      <p>Your choices are: {JSON.stringify(activeRaider?.choices)}</p>
-      {:else if activeRaider.arenaEvents.committed}
-      <p>Waiting for guardian to declare</p>
-      {/if}
-    </div>
-  </div>
+  {#if gid}
+  <SceneChoices {gid} entry={activeRaider} finalEntry={finalEntry} metadataURI={metadataURI} />
   {/if}
 	<div class="bg-surface-500/30 p-4">
   {#if gid}
@@ -146,6 +134,7 @@
     <section class="max-h-[500px] p-4 overflow-y-auto space-y-4">
       {#if $trialFeeds?.trial}
       {#each $trialFeeds?.trial as entry}
+        {#if entry?.eid !== finalEntry?.eid}
         {#if ($walletAddress && entry?.address === $walletAddress)}
           <div class="grid grid-cols-[auto_1fr] gap-2">
             {#if (entry?.state?.nickname && entry.address)}
@@ -161,6 +150,7 @@
             <TrialistAvatarStatusBadge nickname={entry?.state?.nickname} address={entry.address}/>
             {/if}
           </div>
+        {/if}
         {/if}
       {/each}
       {/if}

@@ -1,5 +1,5 @@
 import { TrialistCommandCtx } from './trialistcmd.js';
-import { gameToken} from '@polysensus/chaintrap-arenastate';
+import { LocationChoiceType} from '@polysensus/chaintrap-arenastate';
 
 /**
  * Must be constructed at page global scope
@@ -30,7 +30,10 @@ export class UseExitCommandCtx extends TrialistCommandCtx {
       return;
     }
     let side = result?.values?.side;
-    side = {north:0, west:1, south:2, east:3}[side.toLowerCase()];
+    if (typeof side !== 'number')
+      side = {north:0, west:1, south:2, east:3}[side.toLowerCase()];
+    else if (side < 0 || side > LocationChoiceType.LastSideChoice)
+      throw new Error(`side ${side} out of range`);
     const exit = result?.values?.exitNumber;
     if (typeof side === 'undefined' || typeof exit === 'undefined')
       throw new Error(`side ${side} or exit ${exit} not found in command`);
