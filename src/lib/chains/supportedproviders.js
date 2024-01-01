@@ -21,11 +21,18 @@ export function namedProviderRoute(page) {
 }
 
 export const all = {};
-all['op-goerli'] = {
-  name: 'op-goerli',
+// all['op-goerli'] = {
+//   name: 'op-goerli',
+//   type: ProviderType.Web3AuthModal,
+//   fetch: true
+// };
+
+all['op-sepolia'] = {
+  name: 'op-sepolia',
   type: ProviderType.Web3AuthModal,
   fetch: true
 };
+
 
 all['hardhat'] = {
   name: 'hardhat',
