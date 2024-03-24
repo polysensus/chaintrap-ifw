@@ -90,7 +90,7 @@
     "@neocodemirror/svelte": "^0.0.17",
     "@openzeppelin/merkle-tree": "^1.0.5",
     "@polysensus/blobcodex": "^0.0.10",
-    "@polysensus/chaintrap-arenastate": "^0.0.42",
+    "@polysensus/chaintrap-arenastate": "^0.0.43",
     "@polysensus/chaintrap-contracts": "^0.3.8",
     "@polysensus/diamond-deploy": "^0.3.3",
     "@web3auth/base": "^7.2.0",

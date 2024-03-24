@@ -113,9 +113,13 @@ let openTrials = data.page.openTrials;
               <!-- (optionally you can provide a label here) -->
               <ul>
                 <li>
+                  {#if row.trial.metadataURL}
                   <a href="{ipfsGatewayURL(row.trial.metadataURL)}">
                     <span class="flex-auto badge variant-ringed">Metadata</span>
                   </a>
+                  {:else}
+                    <span class="flex-auto badge variant-ringed">Metadata Not Found</span>
+                  {/if}
                 </li>
                 <!-- ... -->
               </ul>

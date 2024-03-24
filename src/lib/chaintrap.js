@@ -78,7 +78,8 @@ export async function registrationStatus(eventParser, gid) {
 export async function fetchGameMetadata(arena, gid) {
   let url = await findGameMetadata(arena, gid);
   if (!url)
-    throw error(404, {message: `no game found for gid ${gid.toHexString()}`});
+    return undefined;
+    // throw error(404, {message: `no game found for gid ${gid.toHexString()}`});
 
   let resp = await fetch(...ipfsFetchArgs(url));
   if (!resp.ok)
