@@ -33,6 +33,7 @@ export async function GET({fetch, params}) {
 
   const completeGames = {};
   const incompleteGames = {};
+  const registrantsHalted = [];
   const narratorVictories = {};
 
   // find all games transfered *from* the address
@@ -44,18 +45,17 @@ export async function GET({fetch, params}) {
     const hexGid = ethers.BigNumber.from(ev.gid).toHexString();
     const creation = createdGames[hexGid]
     if (!creation) continue;
+    // Games only transfer if a raider is victorious. And the game is completed
+    // in the same transaction.
     completeGames[hexGid] = creation;
   }
 
   for (const gidHex of Object.keys(createdGames)) {
     const gid = ethers.BigNumber.from(gidHex);
-    // find the halted players, if all players are halted in the game, then the
-    // narrator one. If a single player was victorious then the narrator lost.
-    // Otherwise the game is incomplete and it counts as a #bad game.
+
     filter = transcriptEventFilter(
       arena, ABIName.TranscriptParticipantHalted, gid);
 
-    const registrantsHalted = [];
     for (const log of await arena.queryFilter(filter)) {
       const ev = eventParser.parse(log);
       registrantsHalted.push(ev.subject);

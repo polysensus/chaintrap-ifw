@@ -8,8 +8,6 @@ import { clipboard } from '@skeletonlabs/skeleton';
 // --- app lib
 import { getLogger } from '$lib/log.js'
 import { ethers } from "ethers";
-import {addressIcon} from '$lib/components/avatars/avatars.js';
-// --- app stores
 /**
  * @type {{request:{href?:string,origin?:string}}}
  */
@@ -67,7 +65,7 @@ function refreshIcon(icon, address) {
             <span bind:this={container} class="badge variant-ghost gap-2"></span>
           </td>
 					<td>
-            <button use:clipboard={address}>{address}</button> 
+            <button type="button" class= "btn variant-ghost" use:clipboard={address}>{address}</button> 
           </td>
 				</tr>
 		</tbody>

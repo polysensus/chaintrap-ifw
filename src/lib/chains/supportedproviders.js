@@ -4,6 +4,19 @@ export function namedProviderRoute(page) {
   if (typeof page?.url?.pathname !== "string") return undefined;
 
   const segments = page.url.pathname.split("/");
+  const qProvider = page.url.searchParams.get("provider");s
+
+  // If the provider is supplied as a query parameter, don't attempt to find it in the path.
+  if (qProvider) {
+    // a) path/addressOrIndex
+    // b) path/
+    let candidate = segments.pop();
+    if (candidate.startsWith("0x"))
+      return `${qProvider}/${candidate}`;
+    if (!Number.isNaN(Number(candidate)))
+      return `${qProvider}/${candidate}`;
+    return qProvider;
+  }
 
   // syntax:
   // a) path/provider/addressOrIndex
@@ -30,6 +43,12 @@ export const all = {};
 all['op-sepolia'] = {
   name: 'op-sepolia',
   type: ProviderType.Web3AuthModal,
+  fetch: true
+};
+
+all['op-sepolia-rpc'] = {
+  name: 'op-sepolia',
+  type: ProviderType.NamedRPC,
   fetch: true
 };
 
