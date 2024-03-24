@@ -13,7 +13,6 @@
 
   // framework components
 	import { AppShell, AppBar } from '@skeletonlabs/skeleton';
-  import { Navbar, NavBrand, NavUl, NavLi } from 'flowbite-svelte';
 
   // application components
   import PagePresence from '$lib/components/presence/PagePresence.svelte';

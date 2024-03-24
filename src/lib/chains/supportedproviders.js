@@ -47,11 +47,11 @@ all['op-sepolia'] = {
 };
 
 all['op-sepolia-rpc'] = {
+  id: 'op-sepolia-rpc',
   name: 'op-sepolia',
   type: ProviderType.NamedRPC,
   fetch: true
 };
-
 
 all['hardhat'] = {
   name: 'hardhat',

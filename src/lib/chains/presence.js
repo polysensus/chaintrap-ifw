@@ -1,3 +1,5 @@
+import { ProviderType } from '@polysensus/chaintrap-arenastate';
+
 import { writable, derived, get } from 'svelte/store';
 
 import { Web3AuthModalProviderSwitch } from './web3authproviderswitch.js';
@@ -23,7 +25,10 @@ export class ChainPresence {
   }
 
   constructor(cfg) {
+
     this.cfg = cfg;
+    this.cfg.excludeNetworkTypes = [ProviderType.APIProxyRPC, ProviderType.NamedRPC, ProviderType.EthersRPC];
+
     this.providerCtx = undefined;
     this.authenticated = writable(false);
     this.providerName = writable(undefined);
@@ -94,30 +99,37 @@ export class ChainPresence {
       console.log(`ChainPresence# refreshProviders api/web3auth: ${JSON.stringify(web3auth)}`);
       return web3auth;
     };
-    const networks = [];
+    const networks = {};
     for (const cfg of Object.values(this.cfg.networks)) {
+
+      cfg.id = cfg.id ?? cfg.name;
+
+      if (this.cfg.excludeNetworkTypes.includes(cfg.type))
+        continue;
+
       // make the first id the same as the name, so we only get -{n} suffices on
       // providers we explicitly configure that way.
-      networks.push({...cfg, id:`${cfg.name}`})
+      networks[cfg.id] = cfg;
+
       if (cfg.name !== 'hardhat' || (this.cfg.hardhatWalletCount ?? 0) < 1)
         continue
 
       console.log(`adding ${this.cfg.hardhatWalletCount - 1} hardhat wallets`)
       let first = this.cfg.hardhatWalletFirst ?? 1;
       // remember addressOrIndex defaults to 0 so we automatically get at least one
-      for (let i=0; i < this.cfg.hardhatWalletCount - 1; i++)
-        networks.push({...cfg,addressOrIndex:first+i, id:`${cfg.name}/${first+i}`})
+      for (let i=0; i < this.cfg.hardhatWalletCount - 1; i++) {
+        const hhCfg = {...cfg}
+        hhCfg.id = `${cfg.name}/${first+i}`;
+        hhCfg.addressOrIndex = first+i;
+        networks[hhCfg.id] = hhCfg;
+      }
     }
-
-    const cfgs = {}
-    for (const cfg of networks)
-      cfgs[cfg.id] = cfg;
 
     await this.providerSwitch.prepare(
       // this.cfg.networks,
-      cfgs,
+      networks,
       (cfg) => {
-        console.log(`preparing: ${cfg.name}`);
+        console.log(`preparing: ${cfg.name} ${cfg.id}`);
         if (cfg.type.startsWith('web3auth')) {
           return new Web3AuthModalProviderContext(cfg);
         }
