@@ -36,14 +36,13 @@ let openTrials = data.page.openTrials;
 		<thead>
 			<tr>
 				<th>id</th>
+        <th>Actions</th>
 				<th>Spaces</th>
-				<th>Registrants</th>
-				<th>Creator</th>
+        <th>Transaction Browser</th>
+				<th>Creator and Registrants</th>
         <!--
 				<th>chainId</th>
         -->
-        <th>Actions</th>
-        <th>Transaction Browser</th>
         <th>Content</th>
 			</tr>
 		</thead>
@@ -53,11 +52,48 @@ let openTrials = data.page.openTrials;
         {@const id = gameInstance(gid)}
 				<tr>
 					<td>{id}</td>
-					<td>{row.trial.registration.registrationLimit - row.trial.registration.registrations.length}</td>
 					<td>
             <nav class="list-nav">
               <!-- (optionally you can provide a label here) -->
               <ul>
+                <li>
+                  <a href={`/trial/raiding/${id}/${row.chain.name}`}>
+                    <span class="badge variant-ringed">{row.chainId}</span>
+                    <span class="flex-auto badge variant-ringed-primary">Raid</span>
+                  </a>
+                </li>
+                <li>
+                  <a href={`/trial/narrating/${id}/${row.chain.name}`}>
+                    <span class="badge variant-ringed">{row.chainId}</span>
+                    <span class="flex-auto badge variant-ringed">Narrate</span>
+                  </a>
+                </li>
+                <!-- ... -->
+              </ul>
+            </nav>
+          </td>
+
+					<td>{row.trial.registration.registrationLimit - row.trial.registration.registrations.length}</td>
+					<td>
+            {#if !row.chain.etherscanUrl}
+              <span class="badge variant-ringed">{row.chain.arenaProxy}</span>
+            {:else}
+              <a href={`${row.chain.etherscanUrl}/address/${row.chain.arenaProxy}`}>
+                <span class="badge variant-ringed">{row.chain.arenaProxy}</span>
+              </a>
+            {/if}
+          </td>
+
+					<td>
+            <nav class="list-nav">
+              <!-- (optionally you can provide a label here) -->
+              <ul>
+                <li>
+                  <a href={`/stats/accounts/${row.trial.created.subject}/${row.chain.name}`}>
+                    <span class="badge variant-ringed">Creator</span>
+                    <span class="badge variant-ringed">{row.trial.created.subject}</span>
+                  </a>
+                </li>
                 {#each row.trial.registration.registrations as reg}
                 <li>
                   <a href={`/stats/accounts/${reg.address}/${row.chain.name}`}>
@@ -71,43 +107,9 @@ let openTrials = data.page.openTrials;
             </nav>
  
           </td>
-					<td>
-            <a href={`/stats/accounts/${row.trial.created.subject}/${row.chain.name}`}>
-              <span class="badge variant-ringed">{row.trial.created.subject}</span>
-            </a>
-          </td>
           <!--
 					<td> <span class="badge bg-primary-500">{row.chainId}</span> </td>
           -->
-					<td>
-            <nav class="list-nav">
-              <!-- (optionally you can provide a label here) -->
-              <ul>
-                <li>
-                  <a href={`/trial/raiding/${id}/${row.chain.name}`}>
-                    <span class="badge variant-ringed">{row.chainId}</span>
-                    <span class="flex-auto badge variant-ringed-primary">Raid</span>
-                  </a>
-                </li>
-                <li>
-                  <a href={`/trial/raiding/${id}/${row.chain.name}`}>
-                    <span class="badge variant-ringed">{row.chainId}</span>
-                    <span class="flex-auto badge variant-ringed">Narrate</span>
-                  </a>
-                </li>
-                <!-- ... -->
-              </ul>
-            </nav>
-          </td>
-					<td>
-            {#if !row.chain.etherscanUrl}
-              <span class="badge variant-ringed">{row.chain.arenaProxy}</span>
-            {:else}
-              <a href={`${row.chain.etherscanUrl}/address/${row.chain.arenaProxy}`}>
-                <span class="badge variant-ringed">{row.chain.arenaProxy}</span>
-              </a>
-            {/if}
-          </td>
 					<td>
             <nav class="list-nav">
               <!-- (optionally you can provide a label here) -->
