@@ -4,7 +4,8 @@ import { json } from '$lib/server/request.js';
 
 /** @type {import('./arena/$types').RequestHandler} */
 export function GET() {
-  return json({
+
+  const chain = {
     name: 'hardhat',
     description: 'The hardhat configuration is for local developer testing',
     chainConfig: {
@@ -14,7 +15,11 @@ export function GET() {
     currency: 'ETH',
     url: secrets['PUBLIC_HARDHAT_URL'] ?? 'http://127.0.0.1:8545',
     polling: env['PUBLIC_HARDHAT_POLLING'] ?? 800,
-    arenaProxy: env['PUBLIC_HARDHAT_ARENA_ADDRESS'],
-    arenaDeployer: env['PUBLIC_HARDHAT_ARENA_DEPLOYER']
-  });
+  } 
+  if (env['PUBLIC_HARDHAT_ARENA_ADDRESS'])
+    chain.arenaProxy = env['PUBLIC_HARDHAT_ARENA_ADDRESS'];
+  if (env['PUBLIC_HARDHAT_ARENA_DEPLOYER'])
+    chain.arenaDeployer = env['PUBLIC_HARDHAT_ARENA_DEPLOYER'];
+
+  return json(chain);
 }

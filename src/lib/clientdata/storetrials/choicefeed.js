@@ -99,6 +99,7 @@ export function newChoiceFeed(feed, walletAddress, opts) {
 
     let createdEntry;
     let victoryTransfer;
+    let raidCompletion;
     let uriEntry;
 
     // for (let feedEntry of (opts?.feedLIFO ? $feed.toReversed() : $feed)) {

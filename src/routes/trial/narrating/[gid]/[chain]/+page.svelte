@@ -106,9 +106,9 @@
     <p>{gid.toHexString()}</p>
   </div>
 {/if}
-{#if trialImg}
-  <PreviewMapCard mapImg={trialImg} mapScale={1.0}/>
-{/if}
 {#if gid}
 <PageGameCommands commands={createGuardianCommands({gid})}/>
+{/if}
+{#if trialImg}
+  <PreviewMapCard mapImg={trialImg} mapScale={1.0}/>
 {/if}
